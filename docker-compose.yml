@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  gbert:
+    build:
+      context: ./gbert
+    command: python agent.py
+    ports:
+      - "8001:8000"
+
+  mbart:
+    build:
+      context: ./mbart
+    command: python agent.py
+    ports:
+      - "8002:8000"
+
+  bart_cnn:
+    build:
+      context: ./bart_cnn
+    command: python agent.py
+    ports:
+      - "8003:8000"
+
+  bert_multilingual:
+    build:
+      context: ./bert_multilingual
+    command: python agent.py
+    ports:
+      - "8004:8000"
+
+  t5_finetuned:
+    build:
+      context: ./t5_finetuned
+    command: python agent.py
+    ports:
+      - "8005:8000"

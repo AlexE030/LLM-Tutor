@@ -108,7 +108,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>RechtChecker</title>
+        <title>LLM-Tutor</title>
         <meta
           name="description"
           content=""

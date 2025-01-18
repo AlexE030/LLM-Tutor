@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  flan_t5:
+    build: ./flan-t5-base
+    container_name: flan_t5_container
+
+  gbert:
+    build: ./gbert
+    container_name: gbert_container
+
+  distillbert:
+    build: ./distillbert
+    container_name: distillbert_container

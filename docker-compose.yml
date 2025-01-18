@@ -1,13 +1,25 @@
 version: "3.8"
 services:
-  flan_t5:
-    build: ./flan-t5-base
-    container_name: flan_t5_container
+  gbert_api:
+    build:
+      context: ./gbert
+    ports:
+      - "8000:8000"
+    restart: always
+    command: ["uvicorn", "agent_gbert:app", "--host", "0.0.0.0", "--port", "8000"]
 
-  gbert:
-    build: ./gbert
-    container_name: gbert_container
+  flan_t5_api:
+    build:
+      context: ./flan-t5-base
+    ports:
+      - "8001:8000"
+    restart: always
+    command: ["uvicorn", "agent_flan_t5:app", "--host", "0.0.0.0", "--port", "8000"]
 
-  distillbert:
-    build: ./distillbert
-    container_name: distillbert_container
+  distillbert_api:
+    build:
+      context: ./distillbert
+    ports:
+      - "8002:8000"
+    restart: always
+    command: ["uvicorn", "agent_distillbert:app", "--host", "0.0.0.0", "--port", "8000"]

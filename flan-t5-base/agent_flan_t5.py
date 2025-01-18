@@ -1,18 +1,27 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 
-# Load the model and tokenizer
-model_name = "google/flan-t5-base"
-tokenizer = T5Tokenizer.from_pretrained(model_name)
-model = T5ForConditionalGeneration.from_pretrained(model_name)
+app = FastAPI()
 
-# Example functionality
-def summarize(text):
-    inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True)
-    outputs = model.generate(inputs.input_ids, max_length=150, num_beams=4, early_stopping=True)
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+MODEL_NAME = "google/flan-t5-base"
+model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
+tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
 
-if __name__ == "__main__":
-    # Test the model
-    text = "This is a simple example. We will test FLAN-T5 summarization."
-    print("Original:", text)
-    print("Summarized:", summarize(text))
+class TextInput(BaseModel):
+    text: str
+
+@app.on_event("startup")
+def load_model():
+    global model, tokenizer
+    model.eval()
+
+@app.post("/summarize/")
+async def summarize(input: TextInput):
+
+    inputs = tokenizer(input.text, return_tensors="pt", max_length=512, truncation=True)
+    summary_ids = model.generate(inputs["input_ids"], max_length=50, min_length=10, length_penalty=2.0)
+    summarized_text = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+
+    return {"original_text": input.text, "summary": summarized_text}
+

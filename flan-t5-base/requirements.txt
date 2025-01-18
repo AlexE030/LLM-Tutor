@@ -3,5 +3,3 @@ transformers==4.33.2
 accelerate
 sentencepiece
 numpy<2.0
-fastapi
-uvicorn

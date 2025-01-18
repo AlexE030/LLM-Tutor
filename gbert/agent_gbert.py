@@ -1,18 +1,28 @@
-from transformers import BertTokenizer, BertForSequenceClassification
+from fastapi import FastAPI
+from pydantic import BaseModel
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import torch
 
-# Load the model and tokenizer
-model_name = "deepset/gbert-base"
-tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name)
+app = FastAPI()
 
-# Example functionality
-def classify(text):
-    inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True)
-    outputs = model(**inputs)
-    return outputs.logits.argmax().item()
+MODEL_NAME = "deepset/gbert-base"
+model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
-if __name__ == "__main__":
-    # Test the model
-    text = "Das ist ein Beispiel für Textklassifikation."
-    print("Input:", text)
-    print("Predicted class:", classify(text))
+class TextInput(BaseModel):
+    text: str
+
+@app.on_event("startup")
+def load_model():
+    global model, tokenizer
+    model.eval()
+
+@app.post("/predict/")
+async def predict(input: TextInput):
+
+    tokens = tokenizer(input.text, return_tensors="pt", padding=True, truncation=True)
+    outputs = model(**tokens)
+    predicted_class = torch.argmax(outputs.logits, dim=1).item()
+
+    return {"text": input.text, "predicted_class": predicted_class}
+

@@ -1,9 +1,9 @@
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 
 # Load the model and tokenizer
-model_name = "deepset/gbert-base"
-tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name)
+model_name = "distilbert/distilbert-base-multilingual-cased"
+tokenizer = DistilBertTokenizer.from_pretrained(model_name)
+model = DistilBertForSequenceClassification.from_pretrained(model_name)
 
 # Example functionality
 def classify(text):
@@ -13,6 +13,6 @@ def classify(text):
 
 if __name__ == "__main__":
     # Test the model
-    text = "Das ist ein Beispiel für Textklassifikation."
+    text = "This is an example for text classification."
     print("Input:", text)
     print("Predicted class:", classify(text))

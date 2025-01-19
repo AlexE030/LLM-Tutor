@@ -171,3 +171,8 @@ cython_debug/
 .pypirc
 
 .idea
+
+#UI
+node_modules
+.next
+next-env.d.ts

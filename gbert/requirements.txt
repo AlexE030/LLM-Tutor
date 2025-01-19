@@ -1,6 +1,0 @@
-transformers
-torch
-flask
-protobuf>=3.19.0
-tiktoken
-sentencepiece

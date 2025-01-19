@@ -1,4 +1,6 @@
-torch==2.0.0
-transformers==4.33.2
-fastapi
-uvicorn
+transformers
+torch
+flask
+protobuf>=3.19.0
+tiktoken
+sentencepiece

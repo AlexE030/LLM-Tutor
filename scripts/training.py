@@ -10,7 +10,7 @@ def train(model, tokenizer):
     df['label'] = 1
 
     negatives = df.sample(frac=0.2).copy()  # 20% of data for negative Examples
-    negatives['german'] = negatives['german'].sample(frac=1).reset_index(drop=True)
+    negatives['German'] = negatives['German'].sample(frac=1).reset_index(drop=True)
     negatives['label'] = 0
 
     df = pd.concat([df, negatives])
@@ -29,8 +29,8 @@ def train(model, tokenizer):
 
     def tokenize_function(examples):
         return tokenizer(
-            examples["english"],  # Englischer Satz
-            examples["german"],  # Deutscher Satz
+            examples["English"],  # Englischer Satz
+            examples["German"],  # Deutscher Satz
             padding="max_length",
             truncation=True,
             max_length=128,

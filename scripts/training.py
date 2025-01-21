@@ -17,8 +17,8 @@ def train(model, tokenizer):
 
     train, val = train_test_split(df, test_size=0.2, stratify=df['label'])
 
-    train.to_csv("train.csv", index=False)
-    val.to_csv("val.csv", index=False)
+    train.to_csv("data/train.csv", index=False)
+    val.to_csv("data/val.csv", index=False)
 
 
 

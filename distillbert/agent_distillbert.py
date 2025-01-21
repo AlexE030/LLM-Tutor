@@ -4,13 +4,13 @@ import os
 # Root-Verzeichnis dynamisch ermitteln
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
+from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
 from scripts.training import train
 
 
 # Load the model and tokenizer
-model_name = "distilbert/distilbert-base-multilingual-cased"
-tokenizer = DistilBertTokenizer.from_pretrained(model_name)
+model_name = "distilbert-base-multilingual-cased"
+tokenizer = DistilBertTokenizerFast.from_pretrained(model_name)
 model = DistilBertForSequenceClassification.from_pretrained(model_name)
 
 # Example functionality

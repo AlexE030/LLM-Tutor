@@ -19,6 +19,10 @@ venv\Scripts\activate
 ### powershell:
 .\venv\Scripts\Activate.ps1
 
+### linux:
+
+source venv/bin/activate
+
 ## 3. Installieren der Requirements
 
 pip install -r requirements.txt

@@ -1,4 +1,12 @@
+import sys
+import os
+
+# Root-Verzeichnis dynamisch ermitteln
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
+from scripts.training import train
+
 
 # Load the model and tokenizer
 model_name = "distilbert/distilbert-base-multilingual-cased"
@@ -11,8 +19,13 @@ def classify(text):
     outputs = model(**inputs)
     return outputs.logits.argmax().item()
 
+def train_models():
+    train(tokenizer, model)
+
 if __name__ == "__main__":
     # Test the model
     text = "This is an example for text classification."
     print("Input:", text)
     print("Predicted class:", classify(text))
+
+train_models()

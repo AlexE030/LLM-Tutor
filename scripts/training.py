@@ -5,7 +5,7 @@ from transformers import TrainingArguments, Trainer, pipeline
 
 
 def train(model, tokenizer):
-    df = pd.read_csv("../data/english_german.csv")
+    df = pd.read_csv("data/english_german.csv")
 
     df['label'] = 1
 

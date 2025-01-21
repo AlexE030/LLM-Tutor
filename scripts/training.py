@@ -23,8 +23,8 @@ def train(model, tokenizer):
 
 
 
-    train_data = load_dataset("csv", data_files="train.csv")["train"]
-    val_data = load_dataset("csv", data_files="val.csv")["train"]
+    train_data = load_dataset("csv", data_files="data/train.csv")["train"]
+    val_data = load_dataset("csv", data_files="data/val.csv")["train"]
 
 
     def tokenize_function(examples):

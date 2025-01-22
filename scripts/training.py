@@ -30,9 +30,6 @@ def train(model, tokenizer):
         tokenized = tokenizer(
             examples["English"],
             examples["German"],
-            padding="max_length",
-            truncation=True,
-            max_length=128,
             return_tensors="np"
         )
         return {

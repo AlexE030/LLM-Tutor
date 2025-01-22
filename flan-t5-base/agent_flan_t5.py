@@ -16,14 +16,13 @@ def load_model():
     global model, tokenizer
     model.eval()
 
-@app.post("/process/")  # Neuer Endpunkt-Name
+@app.post("/process/")
 async def process_text(input: TextInput):
-    # Tokenisieren und Text zusammenfassen
+
     inputs = tokenizer(input.text, return_tensors="pt", max_length=512, truncation=True)
     summary_ids = model.generate(inputs["input_ids"], max_length=50, min_length=10, length_penalty=2.0)
     summarized_text = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
-    # Rückgabe im standardisierten Format für den Router
     return {"generated_text": summarized_text}
 
 

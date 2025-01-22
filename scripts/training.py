@@ -28,8 +28,8 @@ def train(model, tokenizer):
 
     def tokenize_function(examples):
         tokenized = tokenizer(
-            text=examples["English"],
-            text_pair=examples["German"],
+            examples["English"],
+            examples["German"],
             padding="max_length",
             truncation=True,
             max_length=128,

@@ -15,14 +15,14 @@ class TextInput(BaseModel):
 @app.on_event("startup")
 def load_model():
     global model, tokenizer
-    model.eval()
+    model.eval()  # Setzt das Modell in den Evaluierungsmodus
 
-@app.post("/predict/")
-async def predict(input: TextInput):
-
+@app.post("/process/")  # Neuer standardisierter Endpunkt
+async def process_text(input: TextInput):
+    # Tokenisieren und Vorhersagen berechnen
     tokens = tokenizer(input.text, return_tensors="pt", padding=True, truncation=True)
     outputs = model(**tokens)
     predicted_class = torch.argmax(outputs.logits, dim=1).item()
 
-    return {"text": input.text, "predicted_class": predicted_class}
-
+    # Rückgabe im standardisierten Format
+    return {"formale_vorgaben": predicted_class}

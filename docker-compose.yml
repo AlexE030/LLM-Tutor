@@ -3,23 +3,42 @@ services:
   gbert_api:
     build:
       context: ./gbert
+    container_name: gbert_api
     ports:
-      - "8000:8000"
+      - "8000:8000"  # GBERT wird standardmäßig auf Port 8000 verfügbar
     restart: always
     command: ["uvicorn", "agent_gbert:app", "--host", "0.0.0.0", "--port", "8000"]
 
   flan_t5_api:
     build:
       context: ./flan-t5-base
+    container_name: flan_t5_api
     ports:
-      - "8001:8000"
+      - "8001:8000"  # Flan-T5 ist auf Port 8001 gemappt
     restart: always
     command: ["uvicorn", "agent_flan_t5:app", "--host", "0.0.0.0", "--port", "8000"]
 
   distillbert_api:
     build:
       context: ./distillbert
+    container_name: distillbert_api
     ports:
-      - "8002:8000"
+      - "8002:8000"  # DistilBERT verwendet Port 8002
     restart: always
     command: ["uvicorn", "agent_distillbert:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  router_api:
+    build:
+      context: ./router
+    container_name: router_api
+    depends_on:
+      - gbert_api
+      - flan_t5_api
+      - distillbert_api
+    ports:
+      - "8080:8000"  # Router ist auf Port 8080 verfügbar
+    restart: always
+    command: ["uvicorn", "router:app", "--host", "0.0.0.0", "--port", "8000"]
+
+networks:
+  llm-network:

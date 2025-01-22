@@ -26,15 +26,19 @@ def train(model, tokenizer):
     train_data = load_dataset("csv", data_files="data/train.csv")["train"]
     val_data = load_dataset("csv", data_files="data/val.csv")["train"]
 
-
     def tokenize_function(examples):
-        return tokenizer(
-            examples["English"],  # Englischer Satz
-            examples["German"],  # Deutscher Satz
+        tokenized = tokenizer(
+            text=examples["English"],
+            text_pair=examples["German"],
             padding="max_length",
             truncation=True,
             max_length=128,
+            return_tensors="np"
         )
+        return {
+            "input_ids": tokenized["input_ids"],
+            "attention_mask": tokenized["attention_mask"]
+        }
 
     train_data = train_data.map(tokenize_function, batched=True)
     val_data = val_data.map(tokenize_function, batched=True)
@@ -74,5 +78,5 @@ def train(model, tokenizer):
 
     nlp = pipeline("text-classification", model="./distilbert-finetuned", tokenizer=tokenizer)
 
-    result = nlp({"text1": "This is a test.", "text2": "Das ist ein Test."})
+    result = nlp({"This is a test. [SEP] Das ist ein Test."})
     print(result)  # Ausgabe: [{'label': 'LABEL_1', 'score': 0.98}]

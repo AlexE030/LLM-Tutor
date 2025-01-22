@@ -27,15 +27,11 @@ def train(model, tokenizer):
     val_data = load_dataset("csv", data_files="data/val.csv")["train"]
 
     def tokenize_function(examples):
-        tokenized = tokenizer(
-            examples["English"],
+        return tokenizer(
+            #examples["English"],
             examples["German"],
             return_tensors="np"
         )
-        return {
-            "input_ids": tokenized["input_ids"],
-            "attention_mask": tokenized["attention_mask"]
-        }
 
     train_data = train_data.map(tokenize_function, batched=True)
     val_data = val_data.map(tokenize_function, batched=True)

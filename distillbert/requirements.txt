@@ -1,6 +1,6 @@
 torch==2.0.1
 transformers==4.33.2
-huggingface-hub==0.17.0
+huggingface-hub
 numpy==1.24.3
 fastapi
 uvicorn

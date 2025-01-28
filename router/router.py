@@ -10,6 +10,7 @@ MODELS = {
     "distillbert": "http://distillbert_api:8000/process/",
     "gbert": "http://gbert_api:8000/process/",
 }
+# In this code the combination of tje llms take place
 
 class TextRequest(BaseModel):
     text: str

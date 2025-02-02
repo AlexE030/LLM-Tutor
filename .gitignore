@@ -172,7 +172,8 @@ cython_debug/
 
 .idea
 
-#UI
 node_modules
+data
 .next
 next-env.d.ts
+.eslintrc.json

@@ -33,6 +33,17 @@ services:
     restart: always
     command: ["uvicorn", "agent_distillbert:app", "--host", "0.0.0.0", "--port", "8000"]
 
+  llame_api:
+    build:
+      context: ./llama-2-7b
+    container_name: llama_api
+    ports:
+      - "8003:8000"
+    networks:
+      - llm-network
+    restart: always
+    command: ["uvicorn", "agent_llama:app", "--host", "0.0.0.0", "--port", "8000"]
+
   router_api:
     build:
       context: ./router

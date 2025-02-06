@@ -9,6 +9,7 @@ MODELS = {
     "flan-t5-base": "http://flan_t5_api:8000/process/",
     "distillbert": "http://distillbert_api:8000/process/",
     "gbert": "http://gbert_api:8000/process/",
+    "llama": "http://llama_api:8000/process/",
 }
 
 class TextRequest(BaseModel):
@@ -27,16 +28,18 @@ async def process_text(request: TextRequest):
     text = request.text
 
     try:
-        flan_result, distillbert_result, gbert_result = await asyncio.gather(
+        flan_result, distillbert_result, gbert_result, llama_result = await asyncio.gather(
             get_model_response("flan-t5-base", text),
             get_model_response("distillbert", text),
-            get_model_response("gbert", text)
+            get_model_response("gbert", text),
+            get_model_response("llama", text)
         )
 
         aggregated_result = {
             "generated_text": flan_result.get("generated_text"),
             "sprachliche_qualitaet": distillbert_result.get("sprachliche_qualitaet"),
-            "formale_vorgaben": gbert_result.get("formale_vorgaben")
+            "formale_vorgaben": gbert_result.get("formale_vorgaben"),
+            "gliederung": llama_result.get("gliederung")
         }
 
         gewichtetes_ergebnis = 0

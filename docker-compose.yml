@@ -33,7 +33,7 @@ services:
     restart: always
     command: ["uvicorn", "agent_distillbert:app", "--host", "0.0.0.0", "--port", "8000"]
 
-  llame_api:
+  llama_api:
     build:
       context: ./llama-2-7b
     container_name: llama_api
@@ -52,6 +52,7 @@ services:
       - gbert_api
       - flan_t5_api
       - distillbert_api
+      - llama_api
     ports:
       - "8080:8000"  # Router ist auf Port 8080 verfügbar
     networks:

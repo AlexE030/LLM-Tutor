@@ -19,7 +19,6 @@ def load_model():
     global model, tokenizer
     model.eval()
 
-
 @app.post("/process/")
 async def process_text(input: TextInput):
 

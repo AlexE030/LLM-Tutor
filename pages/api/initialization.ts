@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const pythonVersion = process.env.PYTHON_EXECUTABLE || "python3";
-  const pythonProcess = spawn(pythonVersion, ["./main.py"]);
+  const pythonProcess = spawn(pythonVersion, ["./main.py", req.body.text]);
 
   let result = "";
   let error = "";

@@ -10,6 +10,7 @@ MODELS = {
     "distillbert": "http://distillbert_api:8000/process/",
     "gbert": "http://gbert_api:8000/process/",
 }
+# In this code the combination of tje llms take place
 
 class TextRequest(BaseModel):
     text: str
@@ -27,11 +28,17 @@ async def process_text(request: TextRequest):
     text = request.text
 
     try:
-        flan_result, distillbert_result, gbert_result = await asyncio.gather(
-            get_model_response("flan-t5-base", text),
+        distillbert_result, gbert_result = await asyncio.gather(
             get_model_response("distillbert", text),
             get_model_response("gbert", text)
         )
+
+        prompt = f"Verbessere den folgenden Text auf Deutsch unter Berücksichtigung der sprachlichen Qualität ({distillbert_result.get('sprachliche_qualitaet')}) und der formalen Vorgaben ({gbert_result.get('formale_vorgaben')}): {text}"
+
+        flan_result = await get_model_response("flan-t5-base", prompt)
+
+        context = f"Sprachliche Qualität: {distillbert_result.get('sprachliche_qualitaet')}, Formale Vorgaben: {gbert_result.get('formale_vorgaben')}"
+        full_text = f"{context} {text}"
 
         aggregated_result = {
             "generated_text": flan_result.get("generated_text"),

@@ -5,11 +5,11 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 app = FastAPI()
 
-MODEL_NAME = "meta-llama/Llama-2-7b"
+MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_auth_token=HF_TOKEN)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, use_auth_token=HF_TOKEN)
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=HF_TOKEN)
 
 
 class TextInput(BaseModel):

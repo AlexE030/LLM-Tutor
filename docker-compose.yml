@@ -36,12 +36,16 @@ services:
     build:
       context: ./llama-2-7b
     container_name: llama_api
+    runtime: nvidia  # Erzwinge NVIDIA-Runtime
     ports:
       - "8003:8000"
     networks:
       - llm-network
     environment:
       HF_TOKEN: ${HF_TOKEN}
+      NVIDIA_VISIBLE_DEVICES: all  # Stelle sicher, dass alle GPUs verfügbar sind
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility  # Lade NVIDIA Compute- und Utility-Bibliotheken
+      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64  # Sicherstellen, dass NVIDIA-Treiber gefunden werden
     restart: always
     deploy:
       resources:

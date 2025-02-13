@@ -19,7 +19,6 @@ def load_model():
 
 @app.post("/process/")
 async def process_text(input: TextInput):
-
     tokens = tokenizer(input.text, return_tensors="pt", padding=True, truncation=True)
     outputs = model(**tokens)
     predicted_class = torch.argmax(outputs.logits, dim=1).item()

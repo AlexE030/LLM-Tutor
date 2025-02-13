@@ -10,6 +10,7 @@ MODELS = {
     "distillbert": "http://distillbert_api:8000/process/",
     "gbert": "http://gbert_api:8000/process/",
     "llama": "http://llama_api:8000/process/",
+    "zephyr": "http://zephyr_api:8000/process/",
 }
 
 class TextRequest(BaseModel):
@@ -28,10 +29,11 @@ async def process_text(request: TextRequest):
     text = request.text
 
     try:
-        distillbert_result, gbert_result, llama_result = await asyncio.gather(
+        distillbert_result, gbert_result, llama_result, zephyr_result = await asyncio.gather(
             get_model_response("distillbert", text),
             get_model_response("gbert", text),
-            get_model_response("llama", text)
+            get_model_response("llama", text),
+            get_model_response("zephyr", text),
         )
 
         prompt = f"Verbessere den folgenden Text auf Deutsch unter Berücksichtigung der sprachlichen Qualität ({distillbert_result.get('sprachliche_qualitaet')}) und der formalen Vorgaben ({gbert_result.get('formale_vorgaben')}): {text}"
@@ -45,7 +47,8 @@ async def process_text(request: TextRequest):
             "generated_text": flan_result.get("generated_text"),
             "sprachliche_qualitaet": distillbert_result.get("sprachliche_qualitaet"),
             "formale_vorgaben": gbert_result.get("formale_vorgaben"),
-            "gliederung": llama_result.get("gliederung")
+            "gliederung": llama_result.get("gliederung"),
+            "citation": zephyr_result.get("citation"),
         }
 
         gewichtetes_ergebnis = 0

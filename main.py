@@ -23,7 +23,7 @@ def main():
             question = "Default Question"
 
         message_json = start_tutor(question)
-        message = message_json.get("gliederung", "No message generated.")
+        message = message_json.get("citation", "No message generated.")
 
         response.update({"message": message})
     except Exception as e:

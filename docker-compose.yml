@@ -43,7 +43,14 @@ services:
     environment:
       HF_TOKEN: ${HF_TOKEN}
     restart: always
-    command: ["uvicorn", "agent_llama:app", "--host", "0.0.0.0", "--port", "8000"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    command: [ "uvicorn", "agent_llama:app", "--host", "0.0.0.0", "--port", "8000" ]
 
   router_api:
     build:

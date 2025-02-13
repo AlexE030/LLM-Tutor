@@ -4,7 +4,7 @@ services:
       context: ./gbert
     container_name: gbert_api
     ports:
-      - "8000:8000"  # GBERT wird standardmäßig auf Port 8000 verfügbar
+      - "8000:8000"
     networks:
       - llm-network
     restart: always
@@ -15,7 +15,7 @@ services:
       context: ./flan-t5-base
     container_name: flan_t5_api
     ports:
-      - "8001:8000"  # Flan-T5 ist auf Port 8001 gemappt
+      - "8001:8000"
     networks:
       - llm-network
     restart: always
@@ -26,7 +26,7 @@ services:
       context: ./distillbert
     container_name: distillbert_api
     ports:
-      - "8002:8000"  # DistilBERT verwendet Port 8002
+      - "8002:8000"
     networks:
       - llm-network
     restart: always
@@ -36,16 +36,16 @@ services:
     build:
       context: ./llama-2-7b
     container_name: llama_api
-    runtime: nvidia  # Erzwinge NVIDIA-Runtime
+    runtime: nvidia
     ports:
       - "8003:8000"
     networks:
       - llm-network
     environment:
       HF_TOKEN: ${HF_TOKEN}
-      NVIDIA_VISIBLE_DEVICES: all  # Stelle sicher, dass alle GPUs verfügbar sind
-      NVIDIA_DRIVER_CAPABILITIES: compute,utility  # Lade NVIDIA Compute- und Utility-Bibliotheken
-      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64  # Sicherstellen, dass NVIDIA-Treiber gefunden werden
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
     restart: always
     deploy:
       resources:
@@ -66,7 +66,7 @@ services:
       - distillbert_api
       - llama_api
     ports:
-      - "8080:8000"  # Router ist auf Port 8080 verfügbar
+      - "8080:8000"
     networks:
       - llm-network
     restart: always
@@ -74,5 +74,5 @@ services:
 
 networks:
   llm-network:
-    name: llm-network  # Explizit den Netzwerk-Namen festlegen
+    name: llm-network
     driver: bridge

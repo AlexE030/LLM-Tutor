@@ -37,7 +37,7 @@ async def generate_outline(input: TextInput):
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
-    outputs = model.generate(**inputs, max_new_tokens=100, num_beams=5, early_stopping=True)
+    outputs = model.generate(**inputs, max_new_tokens=100, num_beams=1, early_stopping=True) # TODO: Need to get the reply speed down. Currently aroud 60 sec
 
     outline = tokenizer.decode(outputs[0], skip_special_tokens=True)
 

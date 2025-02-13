@@ -2,14 +2,17 @@ import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
 
 app = FastAPI()
 
 MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=HF_TOKEN)
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=HF_TOKEN).to(device)
 tokenizer.pad_token = tokenizer.eos_token
 
 
@@ -35,7 +38,7 @@ async def generate_outline(input: TextInput):
 
     print(prompt)
 
-    inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+    inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512)
     outputs = model.generate(**inputs, max_length=500, num_beams=5, early_stopping=True)
     outline = tokenizer.decode(outputs[0], skip_special_tokens=True)
 

@@ -51,6 +51,7 @@ Geben sie hierfür an:
 docker-compose up -d --build
 ```
 Dieser Vorgang kann einige Zeit in Anspruch nehmen.
+Nachdem der Build abgeschlossen ist, sollte nochmal etwa 15 Minuten gewartet werden, damit alle LLM richtig starten können.
 
 ## Start
 ```

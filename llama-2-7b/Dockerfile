@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.8.0-base
+FROM nvidia/cuda
 
 WORKDIR /app
 

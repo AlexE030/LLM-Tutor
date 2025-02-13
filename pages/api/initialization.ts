@@ -8,23 +8,29 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   let result = "";
   let error = "";
 
+  // Listen for standard output
   pythonProcess.stdout.on("data", (data) => {
-    result += data.toString();
+    result += data.toString(); // Accumulate standard output
   });
 
+  // Listen for error output
   pythonProcess.stderr.on("data", (data) => {
-    error += data.toString();
+    error += data.toString(); // Accumulate error output
   });
 
+  // Handle process close
   pythonProcess.on("close", (code) => {
     if (code === 0) {
+      // Successfully executed
       try {
-        const parsedResult = JSON.parse(result);
+        const parsedResult = JSON.parse(result); // Attempt to parse JSON
         res.status(200).json(parsedResult);
       } catch (parseError) {
-        res.status(500).json({ error: "Failed to parse Python response", details: result.trim() });
+        // Send raw result if JSON parsing fails
+        res.status(200).json({ output: result.trim() });
       }
     } else {
+      // Error occurred
       res.status(500).json({
         error: "Python script failed",
         details: error.trim() || "Unknown error occurred",
@@ -32,6 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
   });
 
+  // Add error handling for spawn failure
   pythonProcess.on("error", (err) => {
     res.status(500).json({
       error: "Failed to execute Python script",
@@ -40,4 +47,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 };
 
-export default handler;
+export default handler

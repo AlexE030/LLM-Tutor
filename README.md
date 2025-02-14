@@ -1,6 +1,7 @@
 # LLM-Tutor
 
 Dieser Code enthält Inhalte aus dem Rechtchecker Repository: https://github.com/AnnaKohlbecker/RechtChecker
+
 Dieses ist unter der MIT-Lizenz lizensiert.
 
 Das Projekt ist ausgelegt um auf dem KI-Server der DHBW zu laufen. Die Lauffähigkeit auf anderen Geräten kann nicht garantiert werden.

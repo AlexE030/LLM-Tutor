@@ -18,7 +18,7 @@ COPY . .
 
 RUN /app/venv/bin/pip install --upgrade pip setuptools==65.5.0 wheel
 
-RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt
+RUN /app/venv/bin/pip install --no-cache-dir --use-deprecated=legacy-resolver -r requirements.txt
 
 ENV PATH="/app/venv/bin:$PATH"
 

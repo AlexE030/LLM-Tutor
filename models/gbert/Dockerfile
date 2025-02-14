@@ -10,13 +10,13 @@ RUN apt-get update && apt-get install -y \
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
     apt-get update && apt-get install -y libc6
 
-RUN apt-get update && apt-get install -y python3.11 python3.11-venv python3.11-distutils
-
 ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
 RUN python3 -m venv /app/venv
 
 COPY . .
+
+RUN /app/venv/bin/pip install --upgrade pip setuptools wheel
 
 RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt
 

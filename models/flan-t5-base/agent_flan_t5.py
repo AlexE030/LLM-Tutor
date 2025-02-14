@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import T5Tokenizer, T5ForConditionalGeneration
+import torch
 
 app = FastAPI()
 
 MODEL_NAME = "google/flan-t5-base"
-model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
-tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
 
-DISTILLBERT_API_URL = "http://distillbert_api:8000/process/"
-GBERT_API_URL = "http://gbert_api:8000/process/"
+model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME, torch_dtype=torch.bfloat16, device_map="auto")
+tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
+tokenizer.pad_token = tokenizer.eos_token
 
 class TextInput(BaseModel):
     text: str

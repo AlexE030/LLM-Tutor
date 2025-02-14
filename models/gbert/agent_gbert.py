@@ -6,8 +6,10 @@ import torch
 app = FastAPI()
 
 MODEL_NAME = "deepset/gbert-base"
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+
+model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, torch_dtype=torch.bfloat16, device_map="auto")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+tokenizer.pad_token = tokenizer.eos_token
 
 class TextInput(BaseModel):
     text: str

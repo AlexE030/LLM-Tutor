@@ -16,7 +16,7 @@ RUN python3 -m venv /app/venv
 
 COPY . .
 
-RUN /app/venv/bin/pip install --no-cache-dir setuptools wheel
+RUN /app/venv/bin/pip install --upgrade pip setuptools wheel
 
 RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt
 

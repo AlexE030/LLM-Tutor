@@ -1,7 +1,7 @@
 services:
   gbert_api:
     build:
-      context: ./gbert
+      context: models/gbert
     container_name: gbert_api
     ports:
       - "8000:8000"
@@ -12,7 +12,7 @@ services:
 
   flan_t5_api:
     build:
-      context: ./flan-t5-base
+      context: models/flan-t5-base
     container_name: flan_t5_api
     ports:
       - "8001:8000"
@@ -23,7 +23,7 @@ services:
 
   distillbert_api:
     build:
-      context: ./distillbert
+      context: models/distillbert
     container_name: distillbert_api
     ports:
       - "8002:8000"
@@ -34,7 +34,7 @@ services:
 
   llama_api:
     build:
-      context: ./llama-2-7b
+      context: models/llama-2-7b
     container_name: llama_api
     runtime: nvidia
     ports:
@@ -43,7 +43,7 @@ services:
       - llm-network
     environment:
       HF_TOKEN: ${HF_TOKEN}
-      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_VISIBLE_DEVICES: 0
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
     restart: always
@@ -56,6 +56,29 @@ services:
               capabilities: [ gpu ]
     command: [ "uvicorn", "agent_llama:app", "--host", "0.0.0.0", "--port", "8000" ]
 
+  zephyr_api:
+    build:
+      context: models/zephyr-7b
+    container_name: zephyr_api
+    runtime: nvidia
+    ports:
+      - "8004:8000"
+    networks:
+      - llm-network
+    environment:
+      NVIDIA_VISIBLE_DEVICES: 1
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    command: [ "uvicorn", "agent_zephyr:app", "--host", "0.0.0.0", "--port", "8000" ]
+
   router_api:
     build:
       context: ./router
@@ -65,6 +88,7 @@ services:
       - flan_t5_api
       - distillbert_api
       - llama_api
+      - zephyr_api
     ports:
       - "8080:8000"
     networks:

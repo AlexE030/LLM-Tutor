@@ -3,12 +3,14 @@ FROM nvidia/cuda:12.8.0-runtime-ubuntu24.04
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
-    python3 python3.11-pip python3.11-venv \
+    python3 python3-pip python3-venv \
     software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
     apt-get update && apt-get install -y libc6
+
+RUN apt-get update && apt-get install -y python3.11 python3.11-venv python3.11-distutils
 
 ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 

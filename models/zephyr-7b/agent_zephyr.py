@@ -2,13 +2,14 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+import bitsandbytes
 
 app = FastAPI()
 
 MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=torch.bfloat16, device_map="auto")
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=torch.bfloat16, load_in_8bit=True, device_map="auto")
 tokenizer.pad_token = tokenizer.eos_token
 
 

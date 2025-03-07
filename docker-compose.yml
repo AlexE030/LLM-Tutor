@@ -10,17 +10,6 @@ services:
     restart: always
     command: ["uvicorn", "agent_gbert:app", "--host", "0.0.0.0", "--port", "8000"]
 
-  flan_t5_api:
-    build:
-      context: models/flan-t5-base
-    container_name: flan_t5_api
-    ports:
-      - "8001:8000"
-    networks:
-      - llm-network
-    restart: always
-    command: ["uvicorn", "agent_flan_t5:app", "--host", "0.0.0.0", "--port", "8000"]
-
   distillbert_api:
     build:
       context: models/distillbert
@@ -85,7 +74,6 @@ services:
     container_name: router_api
     depends_on:
       - gbert_api
-      - flan_t5_api
       - distillbert_api
       - llama_api
       - zephyr_api

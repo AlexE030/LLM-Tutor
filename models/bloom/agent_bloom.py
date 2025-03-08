@@ -26,7 +26,8 @@ def load_model():
     global model, tokenizer
     model.eval()
 
-
+# TODO: Bring down responding time
+# TODO: Provide good Answers
 @app.post("/process/")
 async def check_grammar(input: TextInput):
     # Der Prompt wird so formuliert, dass das Modell als Experte für deutsche Grammatik agiert.

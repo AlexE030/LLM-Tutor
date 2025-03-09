@@ -68,6 +68,29 @@ services:
               capabilities: [ gpu ]
     command: [ "uvicorn", "agent_zephyr:app", "--host", "0.0.0.0", "--port", "8000" ]
 
+  mistral_api:
+    build:
+      context: models/mistral-7b
+    container_name: mistral_api
+    runtime: nvidia
+    ports:
+      - "8005:8000"
+    networks:
+      - llm-network
+    environment:
+      NVIDIA_VISIBLE_DEVICES: 1
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    command: [ "uvicorn", "agent_zephyr:app", "--host", "0.0.0.0", "--port", "8000" ]
+
   router_api:
     build:
       context: ./router
@@ -77,12 +100,14 @@ services:
       - distillbert_api
       - llama_api
       - zephyr_api
+      - mistral_api
     ports:
       - "8080:8000"
     networks:
       - llm-network
     restart: always
     command: ["uvicorn", "router:app", "--host", "0.0.0.0", "--port", "8000"]
+
 
 networks:
   llm-network:

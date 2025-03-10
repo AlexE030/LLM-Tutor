@@ -29,11 +29,12 @@ async def process_text(request: TextRequest):
     text = request.text
 
     try:
-        distillbert_result, gbert_result, llama_result, zephyr_result = await asyncio.gather(
+        distillbert_result, gbert_result, llama_result, zephyr_result, mistral_result = await asyncio.gather(
             get_model_response("distillbert", text),
             get_model_response("gbert", text),
             get_model_response("llama", text),
             get_model_response("zephyr", text),
+            get_model_response("mistral", text),
         )
 
         aggregated_result = {

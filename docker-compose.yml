@@ -10,17 +10,6 @@ services:
     restart: always
     command: ["uvicorn", "agent_gbert:app", "--host", "0.0.0.0", "--port", "8000"]
 
-  flan_t5_api:
-    build:
-      context: models/flan-t5-base
-    container_name: flan_t5_api
-    ports:
-      - "8001:8000"
-    networks:
-      - llm-network
-    restart: always
-    command: ["uvicorn", "agent_flan_t5:app", "--host", "0.0.0.0", "--port", "8000"]
-
   distillbert_api:
     build:
       context: models/distillbert
@@ -78,6 +67,29 @@ services:
               count: 1
               capabilities: [ gpu ]
     command: [ "uvicorn", "agent_zephyr:app", "--host", "0.0.0.0", "--port", "8000" ]
+
+  mistral_api:
+    build:
+      context: models/mistral-7b
+    container_name: mistral_api
+    runtime: nvidia
+    ports:
+      - "8005:8000"
+    networks:
+      - llm-network
+    environment:
+      NVIDIA_VISIBLE_DEVICES: 1
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    command: [ "uvicorn", "agent_mistral:app", "--host", "0.0.0.0", "--port", "8000" ]
 
   router_api:
     build:

@@ -55,6 +55,7 @@ services:
     networks:
       - llm-network
     environment:
+      HF_TOKEN: ${HF_TOKEN}
       NVIDIA_VISIBLE_DEVICES: 1
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
@@ -78,6 +79,7 @@ services:
     networks:
       - llm-network
     environment:
+      HF_TOKEN: ${HF_TOKEN}
       NVIDIA_VISIBLE_DEVICES: 1
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
@@ -89,7 +91,7 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [ gpu ]
-    command: [ "uvicorn", "agent_zephyr:app", "--host", "0.0.0.0", "--port", "8000" ]
+    command: [ "uvicorn", "agent_mistral:app", "--host", "0.0.0.0", "--port", "8000" ]
 
   router_api:
     build:
@@ -107,7 +109,6 @@ services:
       - llm-network
     restart: always
     command: ["uvicorn", "router:app", "--host", "0.0.0.0", "--port", "8000"]
-
 
 networks:
   llm-network:

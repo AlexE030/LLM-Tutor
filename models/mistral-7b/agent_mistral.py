@@ -14,6 +14,7 @@ MODEL_NAME = "mistralai/Mistral-7B-v0.1"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
+tokenizer.pad_token = tokenizer.eos_token
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto"
 )

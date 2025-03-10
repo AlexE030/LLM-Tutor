@@ -100,6 +100,7 @@ services:
       - distillbert_api
       - llama_api
       - zephyr_api
+      - mistral_api
     ports:
       - "8080:8000"
     networks:

@@ -97,7 +97,6 @@ services:
     container_name: router_api
     depends_on:
       - gbert_api
-      - flan_t5_api
       - distillbert_api
       - llama_api
       - zephyr_api

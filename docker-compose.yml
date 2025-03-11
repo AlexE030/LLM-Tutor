@@ -1,26 +1,4 @@
 services:
-  gbert_api:
-    build:
-      context: models/gbert
-    container_name: gbert_api
-    ports:
-      - "8000:8000"
-    networks:
-      - llm-network
-    restart: always
-    command: ["uvicorn", "agent_gbert:app", "--host", "0.0.0.0", "--port", "8000"]
-
-  distillbert_api:
-    build:
-      context: models/distillbert
-    container_name: distillbert_api
-    ports:
-      - "8002:8000"
-    networks:
-      - llm-network
-    restart: always
-    command: ["uvicorn", "agent_distillbert:app", "--host", "0.0.0.0", "--port", "8000"]
-
   llama_api:
     build:
       context: models/llama-2-7b
@@ -98,8 +76,6 @@ services:
       context: ./router
     container_name: router_api
     depends_on:
-      - gbert_api
-      - distillbert_api
       - llama_api
       - zephyr_api
       - mistral_api

@@ -6,8 +6,6 @@ import asyncio
 app = FastAPI()
 
 MODELS = {
-    "distillbert": "http://distillbert_api:8000/process/",
-    "gbert": "http://gbert_api:8000/process/",
     "llama": "http://llama_api:8000/process/",
     "zephyr": "http://zephyr_api:8000/process/",
     "mistral": "http://mistral_api:8000/process/",
@@ -45,17 +43,13 @@ async def process_text(request: TextRequest):
  #      return result
 
     try:
-        distillbert_result, gbert_result, llama_result, zephyr_result, mistral_result = await asyncio.gather(
-            get_model_response("distillbert", text),
-            get_model_response("gbert", text),
+        llama_result, zephyr_result, mistral_result = await asyncio.gather(
             get_model_response("llama", text),
             get_model_response("zephyr", text),
             get_model_response("mistral", text),
         )
 
         aggregated_result = {
-            "sprachliche_qualitaet": distillbert_result.get("sprachliche_qualitaet"),
-            "formale_vorgaben": gbert_result.get("formale_vorgaben"),
             "gliederung": llama_result.get("gliederung"),
             "citation": zephyr_result.get("citation"),
             "mistral": mistral_result.get("mistral"),

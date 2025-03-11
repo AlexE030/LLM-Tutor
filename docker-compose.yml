@@ -34,7 +34,7 @@ services:
       - llm-network
     environment:
       HF_TOKEN: ${HF_TOKEN}
-      NVIDIA_VISIBLE_DEVICES: 1
+      NVIDIA_VISIBLE_DEVICES: 0
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
     restart: always

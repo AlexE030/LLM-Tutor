@@ -11,8 +11,6 @@ ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
 RUN python3 -m venv /app/venv
 
-COPY test.py /app/test.py
-
 COPY . .
 
 RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt

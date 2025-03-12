@@ -3,12 +3,19 @@ from pydantic import BaseModel
 import requests
 import asyncio
 
-from enums.model import Model
+from enum import Enum
 
 app = FastAPI()
 
 class TextRequest(BaseModel):
     text: str
+
+
+class Model(Enum):
+    LLAMA = "http://llama_api:8000/process/"
+    ZEPHYR = "http://zephyr_api:8000/process/"
+    BLOOM = "http://bloom_api:8000/process/"
+    MISTRAL = "http://mistral_api:8000/process/"
 
 
 async def get_model_response(model: Model, text: str):

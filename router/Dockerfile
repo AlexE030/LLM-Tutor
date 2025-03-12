@@ -7,4 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY router.py .
 
+COPY ./enums .
+
 CMD ["uvicorn", "router:app", "--host", "0.0.0.0", "--port", "8000"]

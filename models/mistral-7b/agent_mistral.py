@@ -14,7 +14,6 @@ HF_TOKEN = os.environ.get("HF_TOKEN", None)
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
 tokenizer.pad_token = tokenizer.eos_token
-device = torch.device("cuda:1")
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto"
 )

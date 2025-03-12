@@ -13,13 +13,14 @@ services:
       NVIDIA_VISIBLE_DEVICES: 0
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
+      PYTORCH_CUDA_ALLOC_CONF=expandable_segments: True
     restart: always
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              device_ids: ['0']
               capabilities: [ gpu ]
     command: [ "uvicorn", "agent_llama:app", "--host", "0.0.0.0", "--port", "8000" ]
 
@@ -37,13 +38,14 @@ services:
       NVIDIA_VISIBLE_DEVICES: 0
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
+      PYTORCH_CUDA_ALLOC_CONF=expandable_segments: True
     restart: always
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              device_ids: ['0']
               capabilities: [ gpu ]
     command: [ "uvicorn", "agent_zephyr:app", "--host", "0.0.0.0", "--port", "8000" ]
 
@@ -61,6 +63,7 @@ services:
       NVIDIA_VISIBLE_DEVICES: 1
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
+      PYTORCH_CUDA_ALLOC_CONF=expandable_segments: True
     restart: always
     deploy:
       resources:
@@ -84,6 +87,7 @@ services:
       NVIDIA_VISIBLE_DEVICES: 1
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib64
+      PYTORCH_CUDA_ALLOC_CONF=expandable_segments: True
     restart: always
     deploy:
       resources:

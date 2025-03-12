@@ -13,7 +13,6 @@ MODELS = {
 
 class TextRequest(BaseModel):
     text: str
-  # task: str
 
 async def get_model_response(model_name: str, text: str):
     try:
@@ -26,21 +25,6 @@ async def get_model_response(model_name: str, text: str):
 @app.post("/process/")
 async def process_text(request: TextRequest):
     text = request.text
-  # task = request.task.lower()
-
- #   try:
- #      if task == "zitationen":
- #          result = await get_model_response("llama", text)
- #      elif task == "grammatik":
- #          result = await get_model_response("zephyr", text)
- #      elif task == "formulierung":
- #          result = await get_model_response("bloom", text)
- #      elif task == "allgemein":
- #          result = await get_model_response("mistral", text)
- #      else:
- #          raise HTTPException(status_code=400, detail="Ungültige Aufgabenauswahl.")
-
- #      return result
 
     try:
         llama_result, zephyr_result, mistral_result = await asyncio.gather(

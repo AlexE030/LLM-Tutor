@@ -10,7 +10,6 @@ MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
-device = torch.device("cuda:0")
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto")
 tokenizer.pad_token = tokenizer.eos_token
 
@@ -37,7 +36,7 @@ async def generate_outline(input: TextInput):
 
     print(prompt)
 
-  #  device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
     outputs = model.generate(**inputs, max_length=500, num_beams=5, early_stopping=True)

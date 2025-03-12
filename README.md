@@ -57,4 +57,4 @@ Nachdem der Build abgeschlossen ist, sollte nochmal etwa 15 Minuten gewartet wer
 ## Start
 ```
 npm run dev
-``` 
+```

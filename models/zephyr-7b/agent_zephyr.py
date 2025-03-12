@@ -8,7 +8,6 @@ app = FastAPI()
 MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-device = torch.device("cuda:0")
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=torch.bfloat16, device_map="auto")
 tokenizer.pad_token = tokenizer.eos_token
 
@@ -35,7 +34,7 @@ async def generate_outline(input: TextInput):
 
     print(prompt)
 
-    #device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
     outputs = model.generate(**inputs, max_new_tokens=100, num_beams=1, early_stopping=True) # TODO: Need to get the reply speed down. Currently around 57 sec

@@ -5,7 +5,7 @@ services:
     container_name: llama_api
     runtime: nvidia
     ports:
-      - "8003:8000"
+      - "8001:8000"
     networks:
       - llm-network
     environment:
@@ -29,7 +29,7 @@ services:
     container_name: zephyr_api
     runtime: nvidia
     ports:
-      - "8004:8000"
+      - "8002:8000"
     networks:
       - llm-network
     environment:
@@ -53,7 +53,7 @@ services:
     container_name: mistral_api
     runtime: nvidia
     ports:
-      - "8005:8000"
+      - "8002:8000"
     networks:
       - llm-network
     environment:
@@ -77,7 +77,7 @@ services:
     container_name: bloom_api
     runtime: nvidia
     ports:
-      - "8005:8000"
+      - "8003:8000"
     networks:
       - llm-network
     environment:

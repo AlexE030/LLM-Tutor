@@ -44,7 +44,7 @@ async def classify_prompt(text: str):
         - "Verbessere mir diesen Text"
         - "Schreib das schöner"
         Examples:
-            - "Verbessere mir das Folgende:" -> minio
+            - "Verbessere mir das Folgende:" -> grammar
             - "Bitte schreib das so um, dass es besser klingt" -> grammar
 
         - **"none"**: For questions that are not related to the above categories or the writing of scientific Papers. 

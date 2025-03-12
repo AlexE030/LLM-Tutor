@@ -9,6 +9,7 @@ MODELS = {
     "llama": "http://llama_api:8000/process/",
     "zephyr": "http://zephyr_api:8000/process/",
     "mistral": "http://mistral_api:8000/process/",
+    "bloom": "http://bloom_api:8000/process/",
 }
 
 class TextRequest(BaseModel):
@@ -27,9 +28,10 @@ async def process_text(request: TextRequest):
     text = request.text
 
     try:
-        llama_result, zephyr_result, mistral_result = await asyncio.gather(
+        llama_result, zephyr_result, bloom_result, mistral_result = await asyncio.gather(
             get_model_response("llama", text),
             get_model_response("zephyr", text),
+            get_model_response("bloom", text),
             get_model_response("mistral", text),
         )
 
@@ -37,6 +39,7 @@ async def process_text(request: TextRequest):
             "gliederung": llama_result.get("gliederung"),
             "citation": zephyr_result.get("citation"),
             "mistral": mistral_result.get("mistral"),
+            "corrected_grammar": bloom_result.get("checked_text"),
         }
 
         gewichtetes_ergebnis = 0

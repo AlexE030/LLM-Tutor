@@ -47,4 +47,6 @@ async def check_grammar(input: TextInput):
     outputs = model.generate(**inputs, max_new_tokens=150, num_beams=1, early_stopping=True)
     checked_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+    torch.cuda.empty_cache()
+
     return {"response": checked_text}

@@ -45,4 +45,6 @@ async def generate_outline(input: TextInput):
 
     outline = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+    torch.cuda.empty_cache()
+
     return {"response": outline}

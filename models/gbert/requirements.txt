@@ -1,5 +1,0 @@
-torch>=2.2.0
-transformers==4.38.0
-fastapi
-uvicorn
-numpy==1.24.3

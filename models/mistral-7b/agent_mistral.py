@@ -64,7 +64,7 @@ async def combine_llm_outputs(input: TextInput):
 
         print(full_prompt)
 
-      #  device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = "cuda" if torch.cuda.is_available() else "cpu"
 
         inputs = tokenizer(full_prompt, return_tensors="pt", padding=True, truncation=True, max_length=1024).to(device)
         outputs = await run_in_threadpool(model.generate, **inputs, max_length=2048, num_beams=5, early_stopping=True,

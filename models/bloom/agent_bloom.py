@@ -40,6 +40,9 @@ async def check_grammar(input: TextInput):
     print(prompt)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    torch.cuda.empty_cache()
+
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
     outputs = model.generate(**inputs, max_new_tokens=150, num_beams=1, early_stopping=True)
     checked_text = tokenizer.decode(outputs[0], skip_special_tokens=True)

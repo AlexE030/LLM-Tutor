@@ -38,6 +38,8 @@ async def generate_outline(input: TextInput):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    torch.cuda.empty_cache()
+
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
     outputs = model.generate(**inputs, max_length=500, num_beams=5, early_stopping=True)
 

@@ -41,4 +41,4 @@ async def generate_outline(input: TextInput):
 
     outline = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    return {"citation": outline}
+    return {"response": outline}

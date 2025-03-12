@@ -43,4 +43,4 @@ async def generate_outline(input: TextInput):
 
     outline = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    return {"gliederung": outline}
+    return {"response": outline}

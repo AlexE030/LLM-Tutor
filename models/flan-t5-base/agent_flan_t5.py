@@ -33,6 +33,6 @@ async def process_text(input: TextInput):
     summary_ids = model.generate(inputs["input_ids"], max_length=50, min_length=10, length_penalty=2.0)
     summarized_text = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
-    return {"generated_text": summarized_text}
+    return {"response": summarized_text}
 
 

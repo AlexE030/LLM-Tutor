@@ -23,4 +23,4 @@ async def process_text(input: TextInput):
     outputs = model(**tokens)
     predicted_class = torch.argmax(outputs.logits, dim=1).item()
 
-    return {"sprachliche_qualitaet": predicted_class}
+    return {"response": predicted_class}

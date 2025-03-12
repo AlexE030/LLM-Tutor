@@ -1,6 +1,3 @@
-import json
-from unittest import case
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import requests
@@ -82,53 +79,12 @@ async def classify_prompt(text: str):
 
 @app.post("/process/")
 async def process_text(request: TextRequest):
-    text = request.text
-
-    model = await asyncio.gather(classify_prompt(text))
-
-    result = await asyncio.gather(get_model_response(model, text))
-
     try:
-        distillbert_result, gbert_result, llama_result, zephyr_result, bloom_result = await asyncio.gather(
-            get_model_response(Model.DISTILBERT, text),
-            get_model_response(Model.GBERT, text),
-            get_model_response(Model.LLAMA, text),
-            get_model_response(Model.ZEPHYR, text),
-            get_model_response(Model.BLOOM, text),
-        )
+        text = request.text
+        model = await asyncio.gather(classify_prompt(text))
+        result = await asyncio.gather(get_model_response(model, text))
 
-        prompt = f"Verbessere den folgenden Text auf Deutsch unter Berücksichtigung der sprachlichen Qualität ({distillbert_result.get('sprachliche_qualitaet')}) und der formalen Vorgaben ({gbert_result.get('formale_vorgaben')}): {text}"
-
-        flan_result = await get_model_response(Model.FLAN, prompt)
-
-        context = f"Sprachliche Qualität: {distillbert_result.get('sprachliche_qualitaet')}, Formale Vorgaben: {gbert_result.get('formale_vorgaben')}"
-        full_text = f"{context} {text}"
-
-        aggregated_result = {
-            "generated_text": flan_result.get("generated_text"),
-            "sprachliche_qualitaet": distillbert_result.get("sprachliche_qualitaet"),
-            "formale_vorgaben": gbert_result.get("formale_vorgaben"),
-            "gliederung": llama_result.get("gliederung"),
-            "citation": zephyr_result.get("citation"),
-            "corrected_grammar": bloom_result.get("checked_text"),
-        }
-
-        gewichtetes_ergebnis = 0
-
-        sprachliche_qualitaet = aggregated_result["sprachliche_qualitaet"]
-        gewichtetes_ergebnis += sprachliche_qualitaet * 0.4
-
-        sachliche_richtigkeit = flan_result.get("sachliche_richtigkeit")
-        if sachliche_richtigkeit == 1:
-            gewichtetes_ergebnis += 0.5
-
-        formale_vorgaben = aggregated_result["formale_vorgaben"]
-        if formale_vorgaben == 1:
-            gewichtetes_ergebnis += 0.1
-
-        aggregated_result["gewichtetes_ergebnis"] = gewichtetes_ergebnis
-
-        return aggregated_result
+        return result
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error while connecting: {e}")

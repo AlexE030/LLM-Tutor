@@ -71,7 +71,21 @@ export default function Home() {
     }
   };
 
+  const resetInputState = async () => {
+  try {
+    const response = await fetch("/api/reset", { method: "POST" });
+    if (!response.ok) {
+      throw new Error("Reset failed");
+    }
+    const data = await response.json();
+    console.log(data.response);
+  } catch (error) {
+    console.error("Error resetting input state:", error);
+  }
+};
+
   const handleReset = (chatbotContent: string) => {
+    resetInputState();
     setMessages([
       {
         role: "assistant",

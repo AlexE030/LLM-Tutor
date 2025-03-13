@@ -213,6 +213,13 @@ async def handle_choose_model_state(text: str):
         return {"response": result}
 
 
+@app.post("/reset/")
+async def reset_state():
+    global input_state
+    input_state = InputState.REQUEST
+    return {"response": "Input state wurde auf REQUEST zurückgesetzt."}
+
+
 @app.post("/process/")
 async def process_text(request: TextRequest):
     try:

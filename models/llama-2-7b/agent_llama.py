@@ -16,7 +16,7 @@ model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto"
 )
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class TextInput(BaseModel):
     text: str

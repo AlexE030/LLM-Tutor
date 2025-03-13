@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+import logging
 
 app = FastAPI()
 
@@ -12,6 +13,8 @@ HF_TOKEN = os.environ.get("HF_TOKEN", None)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto")
 tokenizer.pad_token = tokenizer.eos_token
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class TextInput(BaseModel):

@@ -39,10 +39,11 @@ async def generate_outline(input: TextInput):
     torch.cuda.empty_cache()
 
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
-    outputs = model.generate(**inputs, max_new_tokens=100, num_beams=1, early_stopping=True) # TODO: Need to get the reply speed down. Currently around 57 sec
-
-    outline = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    input_length = inputs.input_ids.shape[1]
+    outputs = model.generate(**inputs, max_new_tokens=512, num_beams=1, early_stopping=True)
+    generated_tokens = outputs[0][input_length:]
+    output = tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
     torch.cuda.empty_cache()
 
-    return {"response": outline}
+    return {"response": output}

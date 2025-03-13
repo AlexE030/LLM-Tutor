@@ -8,7 +8,7 @@ import sys
 from enum import Enum
 
 
-logger = logging.getLogger("myapp")
+logger = logging.getLogger("router")
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.DEBUG)
@@ -153,10 +153,10 @@ async def handle_backfall(text: str):
     overpass["model"] = model
 
     if not subject == "":
-        result += f"\n Geht es in deiner Anfrage um folgendes: {subject} (Bestätige mit ja oder nein)"
+        result += f"\nGeht es in deiner Anfrage um folgendes: {subject} (Bestätige mit ja oder nein)"
         input_state = InputState.CONFIRM
     else:
-        result += "\n Bitte gib die Art deiner Anfrage manuell ein (1 = zitat, 2 = gliederung, 3 = formulierung, 4 = nichts davon)"
+        result += "\nBitte gib die Art deiner Anfrage manuell ein (1 = zitat, 2 = gliederung, 3 = formulierung, 4 = nichts davon)"
         input_state = InputState.CHOOSE_MODEL
 
     return {"response": result}

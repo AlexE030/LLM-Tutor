@@ -4,6 +4,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import os
 import logging
+import sys
 
 app = FastAPI()
 
@@ -16,6 +17,11 @@ model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto"
 )
 
+logger = logging.getLogger("router")
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+logger.addHandler(handler)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class TextInput(BaseModel):
@@ -41,6 +47,10 @@ async def generate_outline(input: TextInput):
     outputs = model.generate(**inputs, max_new_tokens=1, num_beams=1, early_stopping=True)
     generated_tokens = outputs[0][input_length:]
     output = tokenizer.decode(generated_tokens, skip_special_tokens=True)
+
+    logger.debug(f"Full llama output: {tokenizer.decode(outputs[0], skip_special_tokens=True)}")
+    logger.debug(f"Llama output without prompt: {output}")
+    logger.debug(f"amount of tokens in prompt: {input_length}")
 
     torch.cuda.empty_cache()
 

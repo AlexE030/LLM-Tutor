@@ -6,6 +6,7 @@ import asyncio
 from enum import Enum
 
 app = FastAPI()
+forbidden_chars = ['\"', '\'']
 
 class TextRequest(BaseModel):
     text: str
@@ -67,7 +68,7 @@ async def classify_prompt(text: str):
         User Question: "{text}"
         """
 
-    response_list = await asyncio.gather(get_model_response(Model.MISTRAL, prompt))
+    response_list = await asyncio.gather(get_model_response(Model.LLAMA, prompt))
     response = response_list[0]
 
     classification = response.get("classification")
@@ -76,7 +77,7 @@ async def classify_prompt(text: str):
         case "citation":
             return Model.ZEPHYR
         case "structure":
-            return Model.LLAMA
+            return Model.MISTRAL
         case "grammar":
             return Model.BLOOM
         case "none":
@@ -88,6 +89,8 @@ async def classify_prompt(text: str):
 async def process_text(request: TextRequest):
     try:
         text = request.text
+        for char in forbidden_chars:
+            text = text.replace(char, "")
         model_list = await asyncio.gather(classify_prompt(text))
         model = model_list[0]
 

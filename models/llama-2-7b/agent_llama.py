@@ -44,14 +44,15 @@ async def generate_outline(input: TextInput):
 
     inputs = tokenizer(input.text, return_tensors="pt", padding=True, truncation=True, max_length=1024).to(device)
     input_length = inputs.input_ids.shape[1]
-    outputs = model.generate(**inputs, max_new_tokens=1, num_beams=1, early_stopping=True)
-    generated_token = outputs[0][-1]
-    output = tokenizer.decode(generated_token, skip_special_tokens=True)
+    outputs = model.generate(**inputs, max_new_tokens=10, num_beams=1, early_stopping=True)
+    generated_text = tokenizer.decode(outputs[0][input_length:], skip_special_tokens=True).strip()
+    first_word = generated_text.split()[0] if generated_text else ""
 
     logging.debug(f"Full llama output: {tokenizer.decode(outputs[0], skip_special_tokens=True)}")
-    logging.debug(f"Llama output without prompt: {output}")
+    logging.debug(f"Llama output without prompt: {generated_text}")
+    logging.debug(f"relevant words: {first_word}")
     logging.debug(f"amount of tokens in prompt: {input_length}")
 
     torch.cuda.empty_cache()
 
-    return {"response": output}
+    return {"response": first_word}

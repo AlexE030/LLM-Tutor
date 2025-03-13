@@ -66,7 +66,7 @@ async def classify_prompt(text: str):
         - "Erstelle mir ein Zitat"
         - "Mache ein Zitat zu"
         Examples:
-            - "Erstelle mir hieraus ein Zitat im Chicago Stil: 'Es gibt 2 Dinge die unendlich sind...'" -> citation
+            - "Erstelle mir hieraus ein Zitat im Chicago Stil" -> citation
             - "Ich möchte daraus ein Zitat haben" -> citation
 
         - **"structure"**: For Questions that refer to the creation of a structure. Especially watch out for the words "Gliederung" or "Struktur" Look for phrases like:
@@ -215,6 +215,7 @@ async def handle_choose_model_state(text: str):
 async def process_text(request: TextRequest):
     try:
         text = request.text
+        logger.info(f"Processing user request: {text}")
         for char in forbidden_chars:
             text = text.replace(char, "")
 
@@ -230,4 +231,5 @@ async def process_text(request: TextRequest):
                 return result_list[0]
 
     except Exception as e:
+        logger.error(e)
         raise HTTPException(status_code=500, detail=f"Error while connecting: {e}")

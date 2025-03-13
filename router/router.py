@@ -1,5 +1,3 @@
-from unittest import case
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import requests
@@ -116,6 +114,8 @@ async def classify_prompt_backfall(text: str):
 
 
 async def handle_backfall(text: str):
+    global input_state
+    global overpass
     model_list = await asyncio.gather(classify_prompt_backfall(text))
     model = model_list[0]
     subject = ""
@@ -129,8 +129,7 @@ async def handle_backfall(text: str):
             subject = "Formulierung und Grammatik"
 
     result = "Kein passendes Modell gefunden"
-    global input_state
-    global overpass
+
     overpass["userQuery"] = text
     overpass["model"] = model
 
@@ -157,13 +156,12 @@ async def handle_request_state(text: str):
 
 
 async def handle_confirm_state(text: str):
+    global input_state
     if text.lower() in ["ja", "yes", "j", "y"]:
         response_list = await asyncio.gather(get_model_response(overpass["model"], overpass["userQuery"]))
-        global input_state
         input_state = InputState.REQUEST
         return response_list[0]
     elif text.lower() in ["nein", "no", "n"]:
-        global input_state
         input_state = InputState.CHOOSE_MODEL
         result = "Bitte gib die Art deiner Anfrage manuell ein (1 = zitat, 2 = gliederung, 3 = formulierung, 4 = nichts davon)"
         return {"response": result}
@@ -172,24 +170,21 @@ async def handle_confirm_state(text: str):
         return {"response": result}
 
 async def handle_choose_model_state(text: str):
+    global input_state
     if text.lower() in ["zitat", "z", "1"]:
         response_list = await asyncio.gather(get_model_response(Model.ZEPHYR, overpass["userQuery"]))
-        global input_state
         input_state = InputState.REQUEST
         return response_list[0]
     if text.lower() in ["gliederung", "g", "2"]:
         response_list = await asyncio.gather(get_model_response(Model.MISTRAL, overpass["userQuery"]))
-        global input_state
         input_state = InputState.REQUEST
         return response_list[0]
     if text.lower() in ["formulierung", "f", "3"]:
         response_list = await asyncio.gather(get_model_response(Model.BLOOM, overpass["userQuery"]))
-        global input_state
         input_state = InputState.REQUEST
         return response_list[0]
     if text.lower() in ["nichts davon", "n", "4"]:
         result = "Es sieht so aus als wäre unser KI-Assistent nicht auf deine Anfrage ausgelegt."
-        global input_state
         input_state = InputState.REQUEST
         return {"response": result}
     else:

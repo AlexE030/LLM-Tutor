@@ -1,12 +1,11 @@
+from unittest import case
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import requests
 import asyncio
 
 from enum import Enum
-
-app = FastAPI()
-forbidden_chars = ['\"', '\'']
 
 class TextRequest(BaseModel):
     text: str
@@ -17,6 +16,21 @@ class Model(Enum):
     ZEPHYR = "http://zephyr_api:8000/process/"
     BLOOM = "http://bloom_api:8000/process/"
     MISTRAL = "http://mistral_api:8000/process/"
+    NONE = "None"
+
+
+class InputState(Enum):
+    REQUEST = 1
+    CONFIRM = 2
+    CHOOSE_MODEL = 3
+
+app = FastAPI()
+forbidden_chars = ['\"', '\'']
+input_state = InputState.REQUEST
+overpass = {
+    "userQuery": '',
+    "model": Model.NONE
+    }
 
 
 async def get_model_response(model: Model, text: str):
@@ -30,6 +44,7 @@ async def get_model_response(model: Model, text: str):
 
 # TODO: Only use first part of prompt for classification (split by :?)
 async def classify_prompt(text: str):
+    relevant_text = text.split(':', 1)[0]
     prompt = f"""
         You are an expert Manager Agent. Your task is to classify user questions into one of the following categories.
         The questions might be in german language. 
@@ -66,7 +81,7 @@ async def classify_prompt(text: str):
 
         Respond **only** and truly **ONLY** with the category name!
 
-        User Question: "{text}"
+        User Question: "{relevant_text}"
         """
 
     response_list = await asyncio.gather(get_model_response(Model.LLAMA, prompt))
@@ -97,7 +112,7 @@ async def classify_prompt_backfall(text: str):
         return Model.MISTRAL
     if any(word in text.lower() for word in bloom_strings):
         return Model.BLOOM
-    return None
+    return Model.NONE
 
 
 async def handle_backfall(text: str):
@@ -114,19 +129,72 @@ async def handle_backfall(text: str):
             subject = "Formulierung und Grammatik"
 
     result = "Kein passendes Modell gefunden"
+    global input_state
+    global overpass
+    overpass["userQuery"] = text
+    overpass["model"] = model
 
     if not subject == "":
         result += f"\n Geht es in deiner Anfrage um folgendes: {subject} (Bestätige mit ja oder nein)"
-        # TODO: If ja, dann entsprechendes modell aufrufen.
-        #  Bei nein selbe frage wie in else stellen
-        #  Ansonsten erneut fragen
+        input_state = InputState.CONFIRM
     else:
         result += "\n Bitte gib die Art deiner Anfrage manuell ein (1 = zitat, 2 = gliederung, 3 = formulierung, 4 = nichts davon)"
-        # TODO: If eins von denen entsprechendes Modell aufrufen.
-        #  Wenn nichts davon folgende Nachricht: "Es sieht so aus als wäre unser KI-Assistent nicht auf deine Anfrage ausgelegt."
-        #  Ansonsten erneut fragen
+        input_state = InputState.CHOOSE_MODEL
 
-    return {"result": result}
+    return {"response": result}
+
+
+async def handle_request_state(text: str):
+    model_list = await asyncio.gather(classify_prompt(text))
+    model = model_list[0]
+
+    if model:
+        result_list = await asyncio.gather(get_model_response(model, text))
+    else:
+        result_list = await asyncio.gather(handle_backfall(text))
+
+    return result_list[0]
+
+
+async def handle_confirm_state(text: str):
+    if text.lower() in ["ja", "yes", "j", "y"]:
+        response_list = await asyncio.gather(get_model_response(overpass["model"], overpass["userQuery"]))
+        global input_state
+        input_state = InputState.REQUEST
+        return response_list[0]
+    elif text.lower() in ["nein", "no", "n"]:
+        global input_state
+        input_state = InputState.CHOOSE_MODEL
+        result = "Bitte gib die Art deiner Anfrage manuell ein (1 = zitat, 2 = gliederung, 3 = formulierung, 4 = nichts davon)"
+        return {"response": result}
+    else:
+        result = "Bitte gib eine sinnvolle Antwort ein. Möglich sind ja oder nein"
+        return {"response": result}
+
+async def handle_choose_model_state(text: str):
+    if text.lower() in ["zitat", "z", "1"]:
+        response_list = await asyncio.gather(get_model_response(Model.ZEPHYR, overpass["userQuery"]))
+        global input_state
+        input_state = InputState.REQUEST
+        return response_list[0]
+    if text.lower() in ["gliederung", "g", "2"]:
+        response_list = await asyncio.gather(get_model_response(Model.MISTRAL, overpass["userQuery"]))
+        global input_state
+        input_state = InputState.REQUEST
+        return response_list[0]
+    if text.lower() in ["formulierung", "f", "3"]:
+        response_list = await asyncio.gather(get_model_response(Model.BLOOM, overpass["userQuery"]))
+        global input_state
+        input_state = InputState.REQUEST
+        return response_list[0]
+    if text.lower() in ["nichts davon", "n", "4"]:
+        result = "Es sieht so aus als wäre unser KI-Assistent nicht auf deine Anfrage ausgelegt."
+        global input_state
+        input_state = InputState.REQUEST
+        return {"response": result}
+    else:
+        result = "Bitte gib eine sinnvolle Antwort ein. Möglich sind 1 = zitat, 2 = gliederung, 3 = formulierung, 4 = nichts davon"
+        return {"response": result}
 
 
 @app.post("/process/")
@@ -135,17 +203,17 @@ async def process_text(request: TextRequest):
         text = request.text
         for char in forbidden_chars:
             text = text.replace(char, "")
-        model_list = await asyncio.gather(classify_prompt(text))
-        model = model_list[0]
 
-        if model:
-            result_list = await asyncio.gather(get_model_response(model, text))
-            result = result_list[0]
-            return result
-        else:
-            result_list = await asyncio.gather(handle_backfall(text))
-            return result_list[0]
-
+        match input_state:
+            case InputState.REQUEST:
+                result_list = await asyncio.gather(handle_request_state(text))
+                return result_list[0]
+            case InputState.CONFIRM:
+                result_list = await asyncio.gather(handle_confirm_state(text))
+                return result_list[0]
+            case InputState.CHOOSE_MODEL:
+                result_list = await asyncio.gather(handle_choose_model_state(text))
+                return result_list[0]
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error while connecting: {e}")

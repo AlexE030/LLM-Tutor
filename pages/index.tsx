@@ -73,7 +73,7 @@ export default function Home() {
 
   const resetInputState = async () => {
   try {
-    const response = await fetch("http://localhost:8080/reset/", { method: "POST" });
+    const response = await fetch("http://192.168.23.112:8080/reset/", { method: "POST" });
     if (!response.ok) {
       throw new Error("Reset failed");
     }

@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-origins = ["http://localhost:3000"]
+origins = ["http://192.168.23.112:3000"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -101,6 +101,17 @@ async def classify_prompt(text: str):
             - "Was ist die Hauptstadt von Frankreich?" -> none
 
         Respond **only** and truly **ONLY** with the category name!
+        Therefore your response looks like one of the following:
+        
+        citation
+        
+        structure
+        
+        grammar
+        
+        none
+        
+        You have only those 4 possible responses!
 
         User Question: "{relevant_text}"
         """

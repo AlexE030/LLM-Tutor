@@ -3,8 +3,6 @@ from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import os
-import asyncio
-import functools
 import logging
 
 app = FastAPI()
@@ -38,7 +36,7 @@ async def generate_outline(input: TextInput):
 
     torch.cuda.empty_cache()
 
-    inputs = tokenizer(input, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
+    inputs = tokenizer(input.text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
     outputs = model.generate(**inputs, max_new_tokens=100, num_beams=1, early_stopping=True) # TODO: Need to get the reply speed down. Currently around 30 sec
 
     outline = tokenizer.decode(outputs[0], skip_special_tokens=True)

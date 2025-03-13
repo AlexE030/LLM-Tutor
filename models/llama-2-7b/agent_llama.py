@@ -46,18 +46,21 @@ async def generate_outline(input: TextInput):
     input_length = inputs.input_ids.shape[1]
     outputs = model.generate(**inputs, max_new_tokens=10, num_beams=1, early_stopping=True)
     generated_text = tokenizer.decode(outputs[0][input_length:], skip_special_tokens=True).strip()
-    output = (re.search(r'\*\*(.*?)\*\*', generated_text))
-    relevant_word = ""
-    if output:
-        relevant_word = output.group(1)
-    else:
-        relevant_word = generated_text.split()[0] if generated_text else ""
+    output = ""
+    if "citation" in generated_text:
+        output = "citation"
+    elif "structure" in generated_text:
+        output = "structure"
+    elif "grammar" in generated_text:
+        output = "grammar"
+    elif "none" in generated_text:
+        output = "none"
 
     logging.debug(f"Full llama output: {tokenizer.decode(outputs[0], skip_special_tokens=True)}")
     logging.debug(f"Llama output without prompt: {generated_text}")
-    logging.debug(f"relevant word: {relevant_word}")
+    logging.debug(f"relevant word: {output}")
     logging.debug(f"amount of tokens in prompt: {input_length}")
 
     torch.cuda.empty_cache()
 
-    return {"response": relevant_word}
+    return {"response": output}

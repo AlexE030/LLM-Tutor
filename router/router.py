@@ -67,7 +67,8 @@ async def classify_prompt(text: str):
         User Question: "{text}"
         """
 
-    response = await asyncio.gather(get_model_response(Model.MISTRAL, prompt))
+    response_list = await asyncio.gather(get_model_response(Model.MISTRAL, prompt))
+    response = response_list[0]
 
     classification = response.get("classification")
 
@@ -83,15 +84,19 @@ async def classify_prompt(text: str):
 
     return None
 
-
 @app.post("/process/")
 async def process_text(request: TextRequest):
     try:
         text = request.text
-        model = await asyncio.gather(classify_prompt(text))
-        result = await asyncio.gather(get_model_response(model, text))
+        model_list = await asyncio.gather(classify_prompt(text))
+        model = model_list[0]
 
-        return result
+        if model:
+            result_list = await asyncio.gather(get_model_response(model, text))
+            result = result_list[0]
+            return result
+        else:
+            return {"result": "No matching model found"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error while connecting: {e}")

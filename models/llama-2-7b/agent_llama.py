@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import torch
 import os
 import logging
-import sys
+import re
 
 MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
@@ -46,13 +46,18 @@ async def generate_outline(input: TextInput):
     input_length = inputs.input_ids.shape[1]
     outputs = model.generate(**inputs, max_new_tokens=10, num_beams=1, early_stopping=True)
     generated_text = tokenizer.decode(outputs[0][input_length:], skip_special_tokens=True).strip()
-    first_word = generated_text.split()[0] if generated_text else ""
+    output = (re.search(r'\*\*(.*?)\*\*', generated_text))
+    relevant_word = ""
+    if output:
+        relevant_word = output.group(1)
+    else:
+        relevant_word = generated_text.split()[0] if generated_text else ""
 
     logging.debug(f"Full llama output: {tokenizer.decode(outputs[0], skip_special_tokens=True)}")
     logging.debug(f"Llama output without prompt: {generated_text}")
-    logging.debug(f"relevant words: {first_word}")
+    logging.debug(f"relevant word: {relevant_word}")
     logging.debug(f"amount of tokens in prompt: {input_length}")
 
     torch.cuda.empty_cache()
 
-    return {"response": first_word}
+    return {"response": relevant_word}

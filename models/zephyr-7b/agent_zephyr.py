@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 
 import torch
 import logging
-import sys
 
 
 MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"

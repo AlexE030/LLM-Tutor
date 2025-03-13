@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from contextlib import asynccontextmanager
 
-import sys
 import torch
 import logging
 

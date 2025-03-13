@@ -4,7 +4,6 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from contextlib import asynccontextmanager
 
 import os
-import sys
 import torch
 import logging
 

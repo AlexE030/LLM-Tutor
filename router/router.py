@@ -1,12 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from enum import Enum
+
 import requests
 import asyncio
 import logging
 import sys
-
-from enum import Enum
-
 
 logger = logging.getLogger("router")
 logger.setLevel(logging.DEBUG)
@@ -217,7 +216,7 @@ async def handle_choose_model_state(text: str):
 async def reset_state():
     global input_state
     input_state = InputState.REQUEST
-    return {"response": "Input state wurde auf REQUEST zurückgesetzt."}
+    return {"response": "Input state has been reset to REQUEST."}
 
 
 @app.post("/process/")

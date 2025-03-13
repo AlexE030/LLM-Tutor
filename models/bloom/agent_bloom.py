@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from contextlib import asynccontextmanager
+
+import sys
 import torch
 import logging
 
-app = FastAPI()
 
 # Verwende das deutsch optimierte Modell
 MODEL_NAME = "malteos/bloom-6b4-clp-german"
@@ -17,6 +19,11 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 tokenizer.pad_token = tokenizer.eos_token
 
+logger = logging.getLogger("agent_bloom")
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+logger.addHandler(handler)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -24,10 +31,15 @@ class TextInput(BaseModel):
     text: str
 
 
-@app.on_event("startup")
-def load_model():
-    global model, tokenizer
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     model.eval()
+    logger.debug("Modell set to evaluation mode.")
+    yield
+    torch.cuda.empty_cache()
+    logger.debug("Shutdown performed successfully.")
+
+app = FastAPI(lifespan=lifespan)
 
 # TODO: Bring down responding time
 # TODO: Provide good Answers

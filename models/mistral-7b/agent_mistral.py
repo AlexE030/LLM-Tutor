@@ -1,11 +1,12 @@
-import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from contextlib import asynccontextmanager
+
+import os
+import sys
 import torch
 import logging
-
-app = FastAPI()
 
 MODEL_NAME = "mistralai/Mistral-7B-v0.1"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
@@ -14,6 +15,11 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto")
 tokenizer.pad_token = tokenizer.eos_token
 
+logger = logging.getLogger("agent_mistral")
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+logger.addHandler(handler)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -21,10 +27,15 @@ class TextInput(BaseModel):
     text: str
 
 
-@app.on_event("startup")
-def load_model():
-    global model, tokenizer
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     model.eval()
+    logger.debug("Modell set to evaluation mode.")
+    yield
+    torch.cuda.empty_cache()
+    logger.debug("Shutdown performed successfully.")
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/process/")

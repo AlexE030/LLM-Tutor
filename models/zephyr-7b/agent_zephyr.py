@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from contextlib import asynccontextmanager
+
 import torch
 import logging
+import sys
 
-app = FastAPI()
 
 MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"
 
@@ -12,6 +14,11 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=torch.bfloat16, device_map="auto")
 tokenizer.pad_token = tokenizer.eos_token
 
+logger = logging.getLogger("agent_llama")
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+logger.addHandler(handler)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -19,10 +26,15 @@ class TextInput(BaseModel):
     text: str
 
 
-@app.on_event("startup")
-def load_model():
-    global model, tokenizer
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     model.eval()
+    logger.debug("Modell set to evaluation mode.")
+    yield
+    torch.cuda.empty_cache()
+    logger.debug("Shutdown performed successfully.")
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/process/")

@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from contextlib import asynccontextmanager
+
 import torch
 import os
 import logging
 import sys
-
-app = FastAPI()
 
 MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
@@ -17,7 +17,7 @@ model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto"
 )
 
-logger = logging.getLogger("router")
+logger = logging.getLogger("agent_llama")
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.DEBUG)
@@ -28,10 +28,15 @@ class TextInput(BaseModel):
     text: str
 
 
-@app.on_event("startup")
-def load_model():
-    global model, tokenizer
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     model.eval()
+    logger.debug("Modell set to evaluation mode.")
+    yield
+    torch.cuda.empty_cache()
+    logger.debug("Shutdown performed successfully.")
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/process/")

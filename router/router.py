@@ -2,8 +2,17 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import requests
 import asyncio
+import logging
+import sys
 
 from enum import Enum
+
+
+logger = logging.getLogger("myapp")
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+logger.addHandler(handler)
 
 class TextRequest(BaseModel):
     text: str
@@ -87,6 +96,7 @@ async def classify_prompt(text: str):
         User Question: "{relevant_text}"
         """
 
+
     response_list = await asyncio.gather(get_model_response(Model.LLAMA, prompt))
     response = response_list[0]
 
@@ -102,7 +112,9 @@ async def classify_prompt(text: str):
         case "none":
             return Model.NONE
 
-    return None
+    logger.debug(f"llama-Response for classification: {classification}")
+    return Model.NONE
+
 
 async def classify_prompt_backfall(text: str):
     zephyr_strings = ["zitat", "zitiere"]
@@ -157,7 +169,7 @@ async def handle_request_state(text: str):
     elif model in [Model.NONE]:
         result_list = await asyncio.gather(handle_backfall(text))
     else:
-        raise NoResposeError
+        raise NoResposeError("No response from llama")
 
     return result_list[0]
 

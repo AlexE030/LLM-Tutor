@@ -15,11 +15,6 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto")
 tokenizer.pad_token = tokenizer.eos_token
 
-logger = logging.getLogger("agent_mistral")
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-logger.addHandler(handler)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -30,10 +25,10 @@ class TextInput(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     model.eval()
-    logger.debug("Modell set to evaluation mode.")
+    logging.debug("Modell set to evaluation mode.")
     yield
     torch.cuda.empty_cache()
-    logger.debug("Shutdown performed successfully.")
+    logging.debug("Shutdown performed successfully.")
 
 app = FastAPI(lifespan=lifespan)
 

@@ -17,11 +17,6 @@ model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto"
 )
 
-logger = logging.getLogger("agent_llama")
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-logger.addHandler(handler)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class TextInput(BaseModel):
@@ -31,10 +26,10 @@ class TextInput(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     model.eval()
-    logger.debug("Modell set to evaluation mode.")
+    logging.debug("Modell set to evaluation mode.")
     yield
     torch.cuda.empty_cache()
-    logger.debug("Shutdown performed successfully.")
+    logging.debug("Shutdown performed successfully.")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -47,15 +42,15 @@ async def generate_outline(input: TextInput):
 
     torch.cuda.empty_cache()
 
-    inputs = tokenizer(input.text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
+    inputs = tokenizer(input.text, return_tensors="pt", padding=True, truncation=True, max_length=1024).to(device)
     input_length = inputs.input_ids.shape[1]
     outputs = model.generate(**inputs, max_new_tokens=1, num_beams=1, early_stopping=True)
-    generated_tokens = outputs[0][input_length:]
-    output = tokenizer.decode(generated_tokens, skip_special_tokens=True)
+    generated_token = outputs[0][-1]
+    output = tokenizer.decode(generated_token, skip_special_tokens=True)
 
-    logger.debug(f"Full llama output: {tokenizer.decode(outputs[0], skip_special_tokens=True)}")
-    logger.debug(f"Llama output without prompt: {output}")
-    logger.debug(f"amount of tokens in prompt: {input_length}")
+    logging.debug(f"Full llama output: {tokenizer.decode(outputs[0], skip_special_tokens=True)}")
+    logging.debug(f"Llama output without prompt: {output}")
+    logging.debug(f"amount of tokens in prompt: {input_length}")
 
     torch.cuda.empty_cache()
 

@@ -22,6 +22,11 @@ class InputState(Enum):
     CONFIRM = 2
     CHOOSE_MODEL = 3
 
+
+class NoResposeError(Exception):
+    """Raised when no response is received from LLM."""
+    pass
+
 app = FastAPI()
 forbidden_chars = ['\"', '\'']
 input_state = InputState.REQUEST
@@ -85,7 +90,7 @@ async def classify_prompt(text: str):
     response_list = await asyncio.gather(get_model_response(Model.LLAMA, prompt))
     response = response_list[0]
 
-    classification = response.get("classification")
+    classification = response.get("response")
 
     match classification:
         case "citation":
@@ -95,7 +100,7 @@ async def classify_prompt(text: str):
         case "grammar":
             return Model.BLOOM
         case "none":
-            return None
+            return Model.NONE
 
     return None
 
@@ -147,10 +152,12 @@ async def handle_request_state(text: str):
     model_list = await asyncio.gather(classify_prompt(text))
     model = model_list[0]
 
-    if model:
+    if model in [Model.ZEPHYR, Model.MISTRAL, Model.BLOOM]:
         result_list = await asyncio.gather(get_model_response(model, text))
-    else:
+    elif model in [Model.NONE]:
         result_list = await asyncio.gather(handle_backfall(text))
+    else:
+        raise NoResposeError
 
     return result_list[0]
 

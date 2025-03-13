@@ -48,7 +48,7 @@ async def generate_outline(input: TextInput):
     generated_tokens = outputs[0][input_length:]
     output = tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-    logger.debug(f"Full llama output: {tokenizer.decode(outputs, skip_special_tokens=True)}")
+    logger.debug(f"Full llama output: {tokenizer.decode(outputs[0], skip_special_tokens=True)}")
     logger.debug(f"Llama output without prompt: {output}")
     logger.debug(f"amount of tokens in prompt: {input_length}")
 

@@ -60,7 +60,9 @@ async def classify_prompt(text: str):
     prompt = f"""
         You are an expert Manager Agent. Your task is to classify user questions into one of the following categories.
         The questions might be in german language. 
-        Each question must belong to exactly one category. Each question must receive precisely and only one category:
+        Each question must belong to exactly one category. Each question must receive only ONE category
+        The possible categories are citation, structure, grammar, none 
+        In the following you will find a description for each category.
 
         - **"citation"**: For Questions referring to the creation of quotes. Especially watch out for the word "Zitat". Look for phrases like:
         - "Erstelle mir ein Zitat"

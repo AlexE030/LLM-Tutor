@@ -53,8 +53,19 @@ async def generate_outline(input: TextInput):
         "12. Verlaginformationen: Füge Verlaginformationen für Buchzitate hinzu. "
         "13. Band- und Ausgabeninformationen: Füge Band- und Ausgabeninformationen für Zeitschriftenzitate korrekt hinzu. "
         "14. Seitenbereiche: Zeige die Seitenbereiche für Artikel und Bücher korrekt an. "
+        "Beispiele für Zitationsstile:"
+        "APA: Autor, A. (Jahr). Titel. Seitenangaben."
+        'Beispiel APA: Hinterseer, H. (2021). KI Systeme. S. 122.'
+        "MLA: Autor, A. Titel. Seitenangaben."
+        'Beispiel MLA: Hinterseer, Hansi. "KI Systeme." S. 122.'
+        "Chicago: Autor, A. Titel, Seitenangaben."
+        'Beispiel Chicago: Hinterseer, Hansi. "KI Systeme." S. 122.'
+        'Harvard: Autor, A. Titel. Seitenangaben.'
+        'Beispiel Harvard: Hinterseer, Hansi. "KI Systeme." S. 122.'
+        'Oxford: Autor, A., "Titel," Seitenangaben.'
+        'Beispiel Oxford: Hinterseer, Hansi, "KI Systeme," S. 122.'
         "Extrahiere den Zitationsstil aus der folgenden Benutzereingabe und erstelle das Zitat entsprechend:"
-        f"{input.text}\n"
+        f"{input.text}"
         "Gib nur das Zitat an, ohne zusätzliche Erklärungen."
     )
 

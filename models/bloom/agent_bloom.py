@@ -41,17 +41,17 @@ app = FastAPI(lifespan=lifespan)
 async def check_grammar(input: TextInput):
     # Der Prompt wird so formuliert, dass das Modell als Experte für deutsche Grammatik agiert.
     prompt = (
-        "Du bist ein hochqualifizierter Lektor für deutsche Sprache mit umfassender Expertise in Grammatik, Rechtschreibung und Stilistik. "
-        "Deine Aufgabe ist es, den folgenden Text präzise zu analysieren und alle Fehler zu korrigieren. "
-        "Gib ausschließlich den korrigierten Text zurück.\n\n"
-        "Führe folgende Aufgaben aus:\n\n"
-        "1. Überprüfe die Rechtschreibung und korrigiere alle Tippfehler.\n"
-        "2. Analysiere die Grammatik, einschließlich:\n"
-        "   - Deklination von Nomen und Adjektiven\n"
-        "   - Konjugation von Verben (Zeitformen und Modi)\n"
-        "   - Korrekte Verwendung von Präpositionen und Fällen.\n"
-        "3. Prüfe die Zeichensetzung, insbesondere die Kommasetzung.\n"
-        "4. Korrigiere die Groß- und Kleinschreibung.\n"
+        "Du bist ein hochqualifizierter Lektor für deutsche Sprache mit umfassender Expertise in Grammatik, Rechtschreibung und Stilistik."
+        "Deine Aufgabe ist es, den folgenden Text präzise zu analysieren und alle Fehler zu korrigieren."
+        "Gib ausschließlich den korrigierten Text zurück."
+        "Führe folgende Aufgaben aus:"
+        "1. Überprüfe die Rechtschreibung und korrigiere alle Tippfehler."
+        "2. Analysiere die Grammatik, einschließlich:"
+        "   - Deklination von Nomen und Adjektiven"
+        "   - Konjugation von Verben (Zeitformen und Modi)"
+        "   - Korrekte Verwendung von Präpositionen und Fällen."
+        "3. Prüfe die Zeichensetzung, insbesondere die Kommasetzung."
+        "4. Korrigiere die Groß- und Kleinschreibung."
         "5. Überprüfe die Satzstruktur und den Satzbau auf grammatikalische Korrektheit und Verständlichkeit.\n\n"
         f"Eingabetext: {input.text}\n"
     )

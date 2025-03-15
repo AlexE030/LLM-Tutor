@@ -95,14 +95,14 @@ services:
     command: [ "uvicorn", "agent_bloom:app", "--host", "0.0.0.0", "--port", "8000" ]
 
   chromadb:
-      image: "chromadb/chroma"
-      container_name: chromadb
-      ports:
-        - "8005:8000"
-      volumes:
-        - chromadb_data:/chroma/data
-      networks:
-        - llm-network
+    image: "chromadb/chroma"
+    container_name: chromadb
+    ports:
+      - "8005:8000"
+    volumes:
+      - chromadb_data:/chroma/data
+    networks:
+      - llm-network
 
   router_api:
     build:
@@ -125,3 +125,6 @@ networks:
   llm-network:
     name: llm-network
     driver: bridge
+
+volumes:  # Korrekt platzierter Volumes-Abschnitt
+  chromadb_data:

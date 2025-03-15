@@ -16,8 +16,10 @@ handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
+
 class TextRequest(BaseModel):
     text: str
+
 
 class Model(Enum):
     LLAMA = "http://llama_api:8000/process/"
@@ -26,24 +28,29 @@ class Model(Enum):
     MISTRAL = "http://mistral_api:8000/process/"
     NONE = "None"
 
+
 class InputState(Enum):
     REQUEST = 1
     CONFIRM = 2
     CHOOSE_MODEL = 3
 
+
 class NoResposeError(Exception):
     """Raised when no response is received from LLM."""
     pass
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.input_state = InputState.REQUEST
     app.state.overpass = {"userQuery": "", "model": Model.NONE}
     app.state.chroma_client = chromadb.Client()
-    app.state.embedding_model = SentenceTransformer(Model.BLOOM)
+    app.state.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+    app.state.retriever = Retriever(app.state.chroma_client, app.state.embedding_model)  # Initialize Retriever once
     logger.debug("State initialized via lifespan.")
     yield
     logger.debug("Shutdown completed.")
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -61,13 +68,43 @@ app.add_middleware(
 
 forbidden_chars = ['\"', '\'']
 
-async def get_model_response(model: Model, text: str):
+
+class Retriever:
+    def __init__(self, chroma_client, embedding_model, collection_name="my_collection"):
+        self.client = chroma_client
+        self.collection = self.client.get_or_create_collection(collection_name)
+        self.embedding_model = embedding_model
+
+    def retrieve_relevant_documents(self, query, top_n=5):
+        """
+        Ruft die relevantesten Dokumente aus ChromaDB basierend auf der Anfrage ab.
+
+        Args:
+            query (str): Die Suchanfrage.
+            top_n (int): Die Anzahl der zurückzugebenden Dokumente.
+
+        Returns:
+            list: Eine Liste von Dokumenten, die der Anfrage am ähnlichsten sind.
+        """
+        query_embedding = self.embedding_model.encode(query).tolist()
+        results = self.collection.query(
+            query_embeddings=[query_embedding],
+            n_results=top_n
+        )
+        return results["documents"][0]
+
+
+async def get_model_response(model: Model, text: str, context: str = None):
     try:
-        response = requests.post(model.value, json={"text": text})
+        payload = {"text": text}
+        if context:
+            payload["context"] = context  # Add context to the payload
+        response = requests.post(model.value, json=payload)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Fehler beim Aufruf von {model.name}: {e}")
+
 
 async def classify_prompt(text: str):
     relevant_text = text.split(':', 1)[0]
@@ -109,15 +146,15 @@ async def classify_prompt(text: str):
 
         Respond **only** and truly **ONLY** with the category name!
         Therefore your response looks like one of the following:
-        
+
         citation
-        
+
         structure
-        
+
         grammar
-        
+
         none
-        
+
         You have only those 4 possible responses!
 
         User Question: "{relevant_text}"
@@ -136,6 +173,7 @@ async def classify_prompt(text: str):
     logger.debug(f"llama-Response for classification: {classification}")
     return Model.NONE
 
+
 async def classify_prompt_backfall(text: str):
     zephyr_strings = ["zitat", "zitiere"]
     mistral_strings = ["struktur", "glieder", "strucktur", "glider"]
@@ -147,6 +185,7 @@ async def classify_prompt_backfall(text: str):
     if any(word in text.lower() for word in bloom_strings):
         return Model.BLOOM
     return Model.NONE
+
 
 async def handle_backfall(text: str, state):
     model_list = await asyncio.gather(classify_prompt_backfall(text))
@@ -169,16 +208,21 @@ async def handle_backfall(text: str, state):
         state.input_state = InputState.CHOOSE_MODEL
     return {"response": result}
 
+
 async def handle_request_state(text: str, state):
     model_list = await asyncio.gather(classify_prompt(text))
     model = model_list[0]
+    context = None
     if model in [Model.ZEPHYR, Model.MISTRAL, Model.BLOOM]:
-        result_list = await asyncio.gather(get_model_response(model, text))
-    elif model in [Model.NONE]:
+        context = state.retriever.retrieve_relevant_documents(text)
+        context = " ".join(context)  # Combine documents into a single string
+    result_list = await asyncio.gather(get_model_response(model, text, context))  # Pass context to LLM
+    if model in [Model.NONE]:
         result_list = await asyncio.gather(handle_backfall(text, state))
     else:
         raise NoResposeError("No response from llama")
     return result_list[0]
+
 
 async def handle_confirm_state(text: str, state):
     if text.lower() in ["ja", "yes", "j", "y"]:
@@ -192,6 +236,7 @@ async def handle_confirm_state(text: str, state):
     else:
         result = "Bitte gib eine sinnvolle Antwort ein. Möglich sind ja oder nein"
         return {"response": result}
+
 
 async def handle_choose_model_state(text: str, state):
     if text.lower() in ["zitat", "z", "1"]:
@@ -214,10 +259,12 @@ async def handle_choose_model_state(text: str, state):
         result = "Bitte gib eine sinnvolle Antwort ein. Möglich sind 1 = zitat, 2 = gliederung, 3 = formulierung, 4 = nichts davon"
         return {"response": result}
 
+
 @app.post("/reset/")
 async def reset_state(request: Request):
     request.app.state.input_state = InputState.REQUEST
     return {"response": "Input state has been reset to REQUEST."}
+
 
 @app.post("/process/")
 async def process_text(request: Request, req: TextRequest):

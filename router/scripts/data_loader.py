@@ -26,9 +26,9 @@ def create_embeddings(text_list, model):
     return embeddings
 
 if __name__ == '__main__':
-    train_data = load_data("../data/in_domain_train.tsv")
-    dev_data = load_data("../data/in_domain_dev.tsv")
-    test_data = load_data("../data/out_of_domain_dev.tsv")
+    train_data = load_data("../../data/in_domain_train.tsv")
+    dev_data = load_data("../../data/in_domain_dev.tsv")
+    test_data = load_data("../../data/out_of_domain_dev.tsv")
 
     if train_data is not None:
         logger.info("Train data loaded successfully.")

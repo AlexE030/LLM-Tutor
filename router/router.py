@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from enum import Enum
+import chromadb
+from sentence_transformers import SentenceTransformer
 import requests
 import asyncio
 import logging
@@ -37,6 +39,8 @@ class NoResposeError(Exception):
 async def lifespan(app: FastAPI):
     app.state.input_state = InputState.REQUEST
     app.state.overpass = {"userQuery": "", "model": Model.NONE}
+    app.state.chroma_client = chromadb.Client()
+    app.state.embedding_model = SentenceTransformer(Model.BLOOM)
     logger.debug("State initialized via lifespan.")
     yield
     logger.debug("Shutdown completed.")

@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
         model = SentenceTransformer('all-MiniLM-L6-v2')
 
-        train_texts = train_data['sentence1'].tolist() + train_data['sentence2'].tolist()
+        train_texts = train_data['sentence1'].tolist() + train_data['sentence2'].tolist() + train_data['sentence3'].tolist() + train_data['sentence4'].tolist()
         logger.debug(f"Number of training texts: {len(train_texts)}")
 
         train_embeddings = create_embeddings(train_texts, model)

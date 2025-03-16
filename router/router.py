@@ -45,10 +45,8 @@ class NoResposeError(Exception):
 async def lifespan(app: FastAPI):
     app.state.input_state = InputState.REQUEST
     app.state.overpass = {"userQuery": "", "model": Model.NONE}
-    app.state.chroma_client = chromadb.Client(Settings(
-        chroma_db_impl="duckdb+parquet",
-        persist_directory="./my_chroma_db"
-    ))
+    # Hier wurde die Zeile geändert:
+    app.state.chroma_client = chromadb.PersistentClient(path="./my_chroma_db")()  # Added parentheses here
     app.state.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
     app.state.retriever = Retriever(app.state.chroma_client, app.state.embedding_model)
     logger.debug("State initialized via lifespan.")

@@ -9,6 +9,7 @@ import asyncio
 import logging
 import sys
 from contextlib import asynccontextmanager
+from chromadb.config import Settings
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("router")
@@ -44,7 +45,10 @@ class NoResposeError(Exception):
 async def lifespan(app: FastAPI):
     app.state.input_state = InputState.REQUEST
     app.state.overpass = {"userQuery": "", "model": Model.NONE}
-    app.state.chroma_client = chromadb.Client()
+    app.state.chroma_client = chromadb.Client(Settings(
+        chroma_db_impl="duckdb+parquet",
+        persist_directory="./my_chroma_db"
+    ))
     app.state.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
     app.state.retriever = Retriever(app.state.chroma_client, app.state.embedding_model)
     logger.debug("State initialized via lifespan.")

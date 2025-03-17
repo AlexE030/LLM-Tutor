@@ -1,4 +1,5 @@
 from huggingface_hub import InferenceClient
+import requests
 
 class LLMClient:
     def __init__(self, api_key: str):
@@ -38,3 +39,30 @@ class LLMClient:
             return response
         except Exception as e:
             raise RuntimeError(f"Error querying the instruct model API: {e}")
+
+    def query_chat(self, model_url: str, inputs: str, max_tokens: int = 500, temperature: float = 1.0) -> dict:
+        """
+        Query the LLM using the chat model.
+
+        Args:
+            model_url (str): The API URL for the chat model.
+            inputs (str): The input text for the model.
+            max_tokens (int): The maximum number of tokens for the response.
+            temperature (float): Sampling temperature for response generation.
+
+        Returns:
+            dict: The response from the API.
+        """
+        payload = {
+            "inputs": inputs,
+            "parameters": {
+                "max_new_tokens": max_tokens,
+                "temperature": temperature
+            }
+        }
+        try:
+            response = requests.post(model_url, headers=self.headers, json=payload)
+            response.raise_for_status()  # Raise HTTPError for bad HTTP responses
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            raise RuntimeError(f"Error querying the chat model API: {e}")

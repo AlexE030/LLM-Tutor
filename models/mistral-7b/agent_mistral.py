@@ -50,10 +50,9 @@ async def generate_outline(input: TextInput):
         "Gib nur die Gliederung ohne weitere Erklärungen an."
     )
 
-    messages = [{"role": "user", "content": prompt}]
-    response = llm_client.query_instruct(
-        model=MODEL_NAME,
-        messages=messages,
+    response = llm_client.query_chat(
+        model_url=MODEL_NAME,
+        inputs=prompt,
     )
 
     return {"response": response["choices"][0]["message"]["content"].strip().lower()}

@@ -1,10 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModelForCausalLM
 from contextlib import asynccontextmanager
 
 import os
-import torch
 import logging
 
 from router.llm_client import LLMClient
@@ -54,10 +52,8 @@ async def generate_outline(input: TextInput):
 
     messages = [{"role": "user", "content": prompt}]
     response = llm_client.query_instruct(
-        model="meta-llama/Llama-3.2-1B-Instruct",
+        model=MODEL_NAME,
         messages=messages,
-        max_tokens=10,
-        temperature=0
     )
 
     return {"response": response["choices"][0]["message"]["content"].strip().lower()}

@@ -7,7 +7,7 @@ import logging
 
 from llm_client import LLMClient
 
-MODEL_NAME = "mistralai/Mistral-7B-v0.1"
+MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.2"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 llm_client = LLMClient(HF_TOKEN)
 

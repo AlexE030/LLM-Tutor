@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import os
 import logging
 
-from router.llm_client import LLMClient
+from llm_client import LLMClient
 
 MODEL_NAME = "mistralai/Mistral-7B-v0.3"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)

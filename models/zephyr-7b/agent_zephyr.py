@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 
 import logging
 
-from router.llm_client import LLMClient
+from llm_client import LLMClient
 
 MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)

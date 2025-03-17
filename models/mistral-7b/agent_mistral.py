@@ -1,82 +1,71 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-import os
-import asyncio
-import functools
-import logging
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+import os
+import torch
+import logging
 
 MODEL_NAME = "mistralai/Mistral-7B-v0.1"
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=HF_TOKEN)
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto")
 tokenizer.pad_token = tokenizer.eos_token
-model = AutoModelForCausalLM.from_pretrained(
-    MODEL_NAME, token=HF_TOKEN, torch_dtype=torch.bfloat16, device_map="auto"
-)
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class TextInput(BaseModel):
     text: str
 
 
-@app.on_event("startup")
-def load_model():
-    global model, tokenizer
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     model.eval()
+    logging.debug("Modell set to evaluation mode.")
+    yield
+    torch.cuda.empty_cache()
+    logging.debug("Shutdown performed successfully.")
 
-def run_in_threadpool(func, *args, **kwargs):
-    loop = asyncio.get_running_loop()
-    partial_func = functools.partial(func, *args, **kwargs)
-    return loop.run_in_executor(None, partial_func)
+app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/process/")
-async def combine_llm_outputs(input: TextInput):
-    try:
-        if not input.text:
-            raise HTTPException(status_code=400, detail="No text provided")
+async def generate_outline(input: TextInput):
+    prompt = (
+        "Du bist ein hochspezialisierter Experte für die Erstellung von Gliederungen für wissenschaftliche Arbeiten."
+        "Deine einzige Aufgabe ist es, detaillierte und logisch strukturierte Gliederungen für wissenschaftliche Themen zu erstellen."
+        "Unter keinen Umständen solltest du über diese Aufgabe hinausgehen und zusätzliche Erklärungen oder Texte liefern."
+        "Die Gliederung muss ein logischer Leitfaden für die Arbeit sein."
+        "Beachte die folgenden Kriterien bei der Erstellung der Gliederung:"
+        "1.  Zielgruppenorientierung: Berücksichtige, dass die Gliederung für Studierende und Forschende relevant sein muss."
+        "2.  Logischer Aufbau: Stelle sicher, dass die Gliederung einen klaren und logischen Aufbau hat, der den Leser durch das Thema führt."
+        "3.  Vollständigkeit: Die Gliederung sollte alle relevanten Aspekte des Themas abdecken."
+        "4.  Hierarchie: Verwende eine klare Hierarchie (z. B. römische Zahlen, arabische Zahlen, Buchstaben), um Haupt- und Unterpunkte zu strukturieren."
+        "5.  Präzision: Formuliere die Gliederungspunkte präzise und aussagekräftig, sodass der Inhalt der jeweiligen Abschnitte klar erkennbar ist."
+        "6.  Thematische Relevanz: Stelle sicher, dass jeder Gliederungspunkt direkt zum Thema der wissenschaftlichen Arbeit beiträgt."
+        "7.  Aktualität: Beziehe, wo möglich, aktuelle Forschungsergebnisse ein."
+        "8.  Methodik: Berücksichtige, wenn in der Benutzereingabe erwähnt, die in der Gliederung verwendete Forschungsmethodik."
+        "9.  Forschungsfrage: Stelle sicher, dass die Gliederung die Forschungsfrage logisch adressiert und beantwortet."
+        "10. Quellen: Beziehe, wenn Quellen angegeben sind, diese ein."
+        "Erstelle eine detaillierte Gliederung zu folgendem Thema:"
+        f"{input.text}\n"
+        "Gib nur die Gliederung ohne weitere Erklärungen an."
+    )
+    print(prompt)
 
-        prompts = [
-            "Du bist ein Experte für das Zusammenfassen und Verbessern von Texten, speziell für wissenschaftliche Arbeiten. Deine Aufgabe ist es, Informationen aus verschiedenen Quellen zu einem kohärenten, informativen und wissenschaftlich fundierten Text zu kombinieren.",
-            "Verwende einen klaren, präzisen und akademischen Schreibstil. Vermeide Umgangssprache und unnötige Wiederholungen.",
-            "Achte auf die logische Struktur und den roten Faden des Textes. Stelle sicher, dass die Informationen in einer sinnvollen Reihenfolge präsentiert werden.",
-            "Identifiziere und extrahiere die wichtigsten Informationen, Argumente und Ergebnisse aus den bereitgestellten Texten.",
-            "Fasse die Kernpunkte jedes Textabschnitts präzise zusammen.",
-            "Vergleiche und kontrastiere die Informationen aus den verschiedenen Quellen. Identifiziere Gemeinsamkeiten, Unterschiede und mögliche Widersprüche.",
-            "Synthetisiere die Informationen zu einem neuen, umfassenden Text, der die wichtigsten Erkenntnisse der Originalquellen widerspiegelt.",
-            "Achte darauf, dass alle Behauptungen und Argumente durch stichhaltige Beweise gestützt werden.",
-            "Gib korrekte Zitate und Referenzen für alle verwendeten Quellen an. Verwende einen einheitlichen Zitierstil (z. B. APA, MLA, Chicago).",
-            "Überprüfe den resultierenden Text auf Rechtschreib-, Grammatik- und Zeichensetzungsfehler. Korrigiere alle Fehler sorgfältig.",
-            "Stelle sicher, dass der Text den Standards für wissenschaftliches Schreiben entspricht. Verwende Fachsprache und Terminologie angemessen.",
-            "Formuliere den Text so um, dass er schlüssig und leicht zu folgen ist. Achte auf einen guten Lesefluss.",
-            "Sei kritisch gegenüber den Informationen in den Quelltexten Bewerte ihre Glaubwürdigkeit und Relevanz.",
-            "Ergänze den Text gegebenfalls durch erklärende beispiele oder belege, um die verständlichkeit des textes zu erhöhen.",
-            f"Hier ist der Text, den du verarbeiten sollst:\n\n{input.text}"
-        ]
-        full_prompt = "\n".join(prompts)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        logging.info(f"Verarbeite Anfrage mit Text: {input.text[:50]}...")
+    torch.cuda.empty_cache()
 
-        print(full_prompt)
+    inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
+    input_length = inputs.input_ids.shape[1]
+    outputs = model.generate(**inputs, max_new_tokens=512, num_beams=1, early_stopping=True)
+    generated_tokens = outputs[0][input_length:]
+    output = tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+    torch.cuda.empty_cache()
 
-        inputs = tokenizer(full_prompt, return_tensors="pt", padding=True, truncation=True, max_length=1024).to(device)
-        outputs = await run_in_threadpool(model.generate, **inputs, max_length=2048, num_beams=5, early_stopping=True,
-                                          temperature=0.7, top_k=50)
-        outline = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-        logging.info("Anfrage erfolgreich verarbeitet.")
-        return {"textausgabe": outline}
-
-    except HTTPException as http_exception:
-        logging.error(f"HTTP-Fehler: {http_exception.detail}")
-        raise http_exception
-    except Exception as e:
-        logging.error(f"Unerwarteter Fehler: {e}")
-        raise HTTPException(status_code=500, detail=f"Unerwarteter Fehler: {e}")
+    return {"response": output}

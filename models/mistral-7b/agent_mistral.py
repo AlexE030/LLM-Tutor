@@ -55,4 +55,4 @@ async def generate_outline(input: TextInput):
         message=prompt,
     )
 
-    return {"response": response["choices"][0]["message"]["content"].strip().lower()}
+    return {"response": response.content}

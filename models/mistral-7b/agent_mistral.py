@@ -53,6 +53,7 @@ async def generate_outline(input: TextInput):
     response = llm_client.query_instruct(
         model=MODEL_NAME,
         message=prompt,
+        max_tokens=1000
     )
 
     return {"response": response.content}

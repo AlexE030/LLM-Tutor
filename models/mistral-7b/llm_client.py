@@ -1,5 +1,4 @@
-from openai import OpenAI
-
+from huggingface_hub import InferenceClient
 
 class LLMClient:
     def __init__(self, api_key: str):
@@ -14,9 +13,9 @@ class LLMClient:
             raise ValueError("HF_API_TOKEN must be provided or set in the environment variables.")
         self.api_key = api_key
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
-        self.client = OpenAI(
-            base_url="https://router.huggingface.co/hf-inference/v1",
-            api_key=api_key,
+        self.client = InferenceClient(
+            provider="hf-inference",
+            api_key="hf_xxxxxxxxxxxxxxxxxxxxxxxx",
         )
 
     def query_instruct(self, model: str, message: str, max_tokens: int = 500, temperature: float = 1.0) -> dict:
@@ -32,19 +31,14 @@ class LLMClient:
         Returns:
             dict: The response from the API.
         """
-        messages = [
-            {
-                "role": "user",
-                "content": message,
-            }
-        ]
         try:
-            response = self.client.chat.completions.create(
+            result = self.client.text_generation(
+                prompt=message,
                 model=model,
-                messages=messages,
-                max_tokens=max_tokens,
+                max_new_tokens=max_tokens,
+                temperature=temperature,
             )
-            return response.choices[0].message
+            return result
         except Exception as e:
             raise RuntimeError(f"Error querying the instruct model API: {e}")
 

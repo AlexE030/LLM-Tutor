@@ -1,11 +1,8 @@
+import logging
 import requests
 
 
-
-
-def query(payload):
-    r
-
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class LLMClient:
     def __init__(self, api_key: str):
@@ -20,7 +17,7 @@ class LLMClient:
             raise ValueError("HF_API_TOKEN must be provided or set in the environment variables.")
         self.api_key = api_key
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
-        self.API_URL = "https://api.friendli.ai/dedicated"
+        self.API_URL = "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-v0.1"
 
     def query_instruct(self, model: str, message: str, max_tokens: int = 500, temperature: float = 1.0) -> dict:
         """
@@ -39,6 +36,9 @@ class LLMClient:
             query = {"inputs": message}
 
             response = requests.post(self.API_URL, headers=self.headers, json=query)
+            logging.debug(f"HTTP Status: {response.status_code}")
+            logging.debug(f"Response Text: {response.text}")
+            response.raise_for_status()
             return response.json()
 
         except Exception as e:

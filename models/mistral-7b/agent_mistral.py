@@ -56,4 +56,6 @@ async def generate_outline(input: TextInput):
         max_tokens=1000
     )
 
+    logging.debug(response)
+
     return {"response": response}

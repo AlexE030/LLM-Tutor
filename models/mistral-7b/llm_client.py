@@ -1,4 +1,11 @@
-from huggingface_hub import InferenceClient
+import requests
+
+
+
+
+def query(payload):
+    r
+
 
 class LLMClient:
     def __init__(self, api_key: str):
@@ -13,10 +20,7 @@ class LLMClient:
             raise ValueError("HF_API_TOKEN must be provided or set in the environment variables.")
         self.api_key = api_key
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
-        self.client = InferenceClient(
-            provider="hf-inference",
-            api_key=api_key,
-        )
+        self.API_URL = "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-v0.1"
 
     def query_instruct(self, model: str, message: str, max_tokens: int = 500, temperature: float = 1.0) -> dict:
         """
@@ -32,13 +36,11 @@ class LLMClient:
             dict: The response from the API.
         """
         try:
-            result = self.client.text_generation(
-                prompt=message,
-                model=model,
-                max_new_tokens=max_tokens,
-                temperature=temperature,
-            )
-            return result
+            query = {"inputs": message}
+
+            response = requests.post(self.API_URL, headers=self.headers, json=query)
+            return response.json()
+
         except Exception as e:
             raise RuntimeError(f"Error querying the instruct model API: {e}")
 

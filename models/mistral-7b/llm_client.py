@@ -15,7 +15,7 @@ class LLMClient:
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
         self.client = InferenceClient(
             provider="hf-inference",
-            api_key="hf_xxxxxxxxxxxxxxxxxxxxxxxx",
+            api_key=api_key,
         )
 
     def query_instruct(self, model: str, message: str, max_tokens: int = 500, temperature: float = 1.0) -> dict:

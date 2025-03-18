@@ -20,7 +20,7 @@ class LLMClient:
             raise ValueError("HF_API_TOKEN must be provided or set in the environment variables.")
         self.api_key = api_key
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
-        self.API_URL = "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-v0.1"
+        self.API_URL = "https://api.friendli.ai/dedicated"
 
     def query_instruct(self, model: str, message: str, max_tokens: int = 500, temperature: float = 1.0) -> dict:
         """

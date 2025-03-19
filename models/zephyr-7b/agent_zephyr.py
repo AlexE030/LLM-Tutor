@@ -1,17 +1,16 @@
+import os
+
 from fastapi import FastAPI
 from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModelForCausalLM
 from contextlib import asynccontextmanager
 
-import torch
 import logging
 
+from llm_client import LLMClient
 
 MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"
-
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=torch.bfloat16, device_map="auto")
-tokenizer.pad_token = tokenizer.eos_token
+HF_TOKEN = os.environ.get("HF_TOKEN", None)
+llm_client = LLMClient(HF_TOKEN)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -22,11 +21,9 @@ class TextInput(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    model.eval()
-    logging.debug("Modell set to evaluation mode.")
+    logging.debug("Zephyr Agent startup.")
     yield
-    torch.cuda.empty_cache()
-    logging.debug("Shutdown performed successfully.")
+    logging.debug("Zephyr Agent shutdown.")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -69,18 +66,10 @@ async def generate_outline(input: TextInput):
         "Gib nur das Zitat an, ohne zusätzliche Erklärungen."
     )
 
-    print(prompt)
+    messages = [{"role": "user", "content": prompt}]
+    response = llm_client.query_instruct(
+        model=MODEL_NAME,
+        messages=messages,
+    )
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    torch.cuda.empty_cache()
-
-    inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
-    input_length = inputs.input_ids.shape[1]
-    outputs = model.generate(**inputs, max_new_tokens=512, num_beams=1, early_stopping=True)
-    generated_tokens = outputs[0][input_length:]
-    output = tokenizer.decode(generated_tokens, skip_special_tokens=True)
-
-    torch.cuda.empty_cache()
-
-    return {"response": output}
+    return {"response": response["choices"][0]["message"]["content"].strip().lower()}

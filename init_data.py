@@ -15,7 +15,8 @@ def reset_chat():
     except requests.exceptions.RequestException as e:
         return {"error": f"Error contacting router_api: {e}"}
 
-chunker = ChunkProcessor(pdf_path, output_path)
-chunker.chunk()
-data_loader = DataLoader(output_path)
-reset_chat()
+if __name__ == '__main__':
+    chunker = ChunkProcessor(pdf_path, output_path)
+    chunker.chunk()
+    data_loader = DataLoader(output_path)
+    reset_chat()

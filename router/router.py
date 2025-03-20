@@ -9,7 +9,6 @@ import asyncio
 import logging
 import sys
 from contextlib import asynccontextmanager
-from chromadb.config import Settings
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("router")
@@ -79,7 +78,7 @@ class Retriever:
 
     def retrieve_relevant_documents(self, query, top_n=5):
         """
-        Ruft die relevantesten Dokumente aus ChromaDB basierend auf der Anfrage ab.
+        Ruft die relevantesten Dokumente aus chromaDB basierend auf der Anfrage ab.
 
         Args:
             query (str): Die Suchanfrage.
@@ -95,7 +94,7 @@ class Retriever:
             query_embeddings=[query_embedding],
             n_results=top_n
         )
-        logger.debug(f"ChromaDB results: {results}")
+        logger.debug(f"chromaDB results: {results}")
         retrieved_docs = results["documents"][0]
         logger.debug(f"Retrieved documents: {retrieved_docs}")
         return retrieved_docs
@@ -236,7 +235,7 @@ async def handle_request_state(text: str, state):
     context = None
     if model in [Model.ZEPHYR, Model.MISTRAL, Model.BLOOM]:
         context = state.retriever.retrieve_relevant_documents(text)
-        logger.debug(f"Retrieved context from ChromaDB: {context}")
+        logger.debug(f"Retrieved context from chromaDB: {context}")
         context = " ".join(context)  # Combine documents into a single string
         logger.debug(f"Context after joining: {context}")
         result_list = await asyncio.gather(get_model_response(model, text, context))  # Pass context to LLM

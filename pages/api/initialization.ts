@@ -2,49 +2,73 @@ import { spawn } from "child_process";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const pythonVersion = process.env.PYTHON_EXECUTABLE || "python3";
-  const pythonProcess = spawn(pythonVersion, ["./main.py", req.body.text]);
+  const pythonExecutable = process.env.PYTHON_EXECUTABLE || "python3";
 
-  let result = "";
-  let error = "";
+  // Zuerst das Initialisierungsskript ausführen
+  const initProcess = spawn(pythonExecutable, ["./init_data.py"]);
+  let initOutput = "";
+  let initError = "";
 
-  // Listen for standard output
-  pythonProcess.stdout.on("data", (data) => {
-    result += data.toString(); // Accumulate standard output
+  initProcess.stdout.on("data", (data) => {
+    initOutput += data.toString();
   });
 
-  // Listen for error output
-  pythonProcess.stderr.on("data", (data) => {
-    error += data.toString(); // Accumulate error output
+  initProcess.stderr.on("data", (data) => {
+    initError += data.toString();
   });
 
-  // Handle process close
-  pythonProcess.on("close", (code) => {
-    if (code === 0) {
-      // Successfully executed
-      try {
-        const parsedResult = JSON.parse(result); // Attempt to parse JSON
-        res.status(200).json(parsedResult);
-      } catch (parseError) {
-        // Send raw result if JSON parsing fails
-        res.status(200).json({ output: result.trim() });
-      }
+  initProcess.on("close", (initCode) => {
+    if (initCode === 0) {
+      console.log("Initialisierung erfolgreich:", initOutput);
+      // Nachdem init_data.py erfolgreich abgeschlossen wurde, starte main.py
+      const mainProcess = spawn(pythonExecutable, ["./main.py", req.body.text]);
+      let mainOutput = "";
+      let mainError = "";
+
+      mainProcess.stdout.on("data", (data) => {
+        mainOutput += data.toString();
+      });
+
+      mainProcess.stderr.on("data", (data) => {
+        mainError += data.toString();
+      });
+
+      mainProcess.on("close", (mainCode) => {
+        if (mainCode === 0) {
+          try {
+            const parsed = JSON.parse(mainOutput);
+            res.status(200).json(parsed);
+          } catch (parseError) {
+            res.status(200).json({ output: mainOutput.trim() });
+          }
+        } else {
+          res.status(500).json({
+            error: "main.py failed",
+            details: mainError.trim() || "Unknown error in main.py",
+          });
+        }
+      });
+
+      mainProcess.on("error", (err) => {
+        res.status(500).json({
+          error: "Failed to execute main.py",
+          details: err.message,
+        });
+      });
     } else {
-      // Error occurred
       res.status(500).json({
-        error: "Python script failed",
-        details: error.trim() || "Unknown error occurred",
+        error: "init_data.py failed",
+        details: initError.trim() || "Unknown error in init_data.py",
       });
     }
   });
 
-  // Add error handling for spawn failure
-  pythonProcess.on("error", (err) => {
+  initProcess.on("error", (err) => {
     res.status(500).json({
-      error: "Failed to execute Python script",
+      error: "Failed to execute init_data.py",
       details: err.message,
     });
   });
 };
 
-export default handler
+export default handler;

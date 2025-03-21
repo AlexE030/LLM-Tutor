@@ -86,7 +86,7 @@ forbidden_chars = ['\"', '\'']
 
 async def get_model_response(model: Model, text: str, context: str = None):
     try:
-        payload = {"text": text, "metadata": context}
+        payload = {"text": text}
         if context:
             payload["context"] = context
         logger.debug(f"Sending request to {model.name} with payload: {payload}")  # Add payload logging

@@ -155,7 +155,6 @@ class ChunkProcessor:
         # Ergänze themenspezifische Tags für jeden Chunk
         for chunk in chunks:
             chunk["tags"] = self.assign_tags(chunk["text"])
-            print(chunk["text"], chunk["headings"], chunk["tags"])
 
         with open(self.output_path, 'w') as json_file:
             json.dump(chunks, json_file)

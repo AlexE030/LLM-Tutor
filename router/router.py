@@ -61,9 +61,7 @@ class Retriever:
 async def lifespan(app: FastAPI):
     app.state.input_state = InputState.REQUEST
     app.state.overpass = {"userQuery": "", "model": Model.NONE}
-    app.state.chroma_client = chromadb.PersistentClient(path="./my_chroma_db")
-    app.state.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
-    app.state.retriever = Retriever(app.state.chroma_client, app.state.embedding_model)
+    app.state.retriever = Retriever()
     logger.debug("State initialized via lifespan.")
     yield
     logger.debug("Shutdown completed.")
@@ -88,13 +86,7 @@ forbidden_chars = ['\"', '\'']
 
 async def get_model_response(model: Model, text: str, context: str = None):
     try:
-        if model != Model.LLAMA:
-            rag_retriever = Retriever()
-            metadata = rag_retriever.retrieve_relevant_documents(text)
-        else:
-            metadata = None
-
-        payload = {"text": text, "metadata": metadata}
+        payload = {"text": text, "metadata": context}
         if context:
             payload["context"] = context
         logger.debug(f"Sending request to {model.name} with payload: {payload}")  # Add payload logging
@@ -224,7 +216,6 @@ async def handle_request_state(text: str, state):
     model_list = await asyncio.gather(classify_prompt(text))
     model = model_list[0]
     logger.debug(f"Model selected: {model}")
-    context = None
     if model in [Model.ZEPHYR, Model.MISTRAL, Model.BLOOM]:
         context = state.retriever.retrieve_relevant_documents(text)
         logger.debug(f"Retrieved context from chromaDB: {context}")

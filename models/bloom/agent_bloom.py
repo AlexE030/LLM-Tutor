@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -23,6 +25,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class TextInput(BaseModel):
     text: str
+    metadata: List[str]
 
 
 @asynccontextmanager
@@ -51,6 +54,8 @@ async def check_grammar(input: TextInput):
        Beispiele:
        - "Main Nahme isd Mike." -> "Mein Name ist Mike."
        - "Ich gehe zum gesheft." -> "Ich gehe zum Geschäft."
+       
+       Hier hast du weitere hinweise aus dem wissenschaftlichen Richtlinien, welche dir helfen können: {input.metadata}
 
        Zu korrigierender Text: "{input.text}"
        Korrigierter Text:

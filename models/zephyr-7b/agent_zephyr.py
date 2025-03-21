@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class TextInput(BaseModel):
     text: str
+    metadata: str
 
 
 @asynccontextmanager
@@ -64,6 +65,8 @@ async def generate_outline(input: TextInput):
         'Beispiel Harvard: Hinterseer, Hansi. "KI Systeme." S. 122.'
         'Oxford: Autor, A., "Titel," Seitenangaben.'
         'Beispiel Oxford: Hinterseer, Hansi, "KI Systeme," S. 122.'
+        
+        f"Hier hast du noch weitere Hinweise zur Zitation aus den Richtlinien der Hochschule, welche dir behilflich sein können: {input.metadata}"
         "Extrahiere den Zitationsstil aus der folgenden Benutzereingabe und erstelle das Zitat entsprechend:"
         f"{input.text}"
         "Gib nur das Zitat an, ohne zusätzliche Erklärungen."

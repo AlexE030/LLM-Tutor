@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -19,6 +21,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class TextInput(BaseModel):
     text: str
+    metadata: List[str]
 
 
 @asynccontextmanager
@@ -50,6 +53,9 @@ async def generate_outline(input: TextInput):
         "8.  Methodik: Berücksichtige, wenn in der Benutzereingabe erwähnt, die in der Gliederung verwendete Forschungsmethodik."
         "9.  Forschungsfrage: Stelle sicher, dass die Gliederung die Forschungsfrage logisch adressiert und beantwortet."
         "10. Quellen: Beziehe, wenn Quellen angegeben sind, diese ein."
+        
+        f"Hier hast du einige zusätzliche Informationen aus den Richtlinien der Hochschule, die die helfen können: {input.metadata}" 
+        
         "Erstelle eine detaillierte Gliederung zu folgendem Thema:"
         f"{input.text}\n"
         "Gib nur die Gliederung ohne weitere Erklärungen an."

@@ -88,7 +88,13 @@ forbidden_chars = ['\"', '\'']
 
 async def get_model_response(model: Model, text: str, context: str = None):
     try:
-        payload = {"text": text}
+        if model != Model.LLAMA:
+            rag_retriever = Retriever()
+            metadata = rag_retriever.retrieve_relevant_documents(text)
+        else:
+            metadata = None
+
+        payload = {"text": text, "metadata": metadata}
         if context:
             payload["context"] = context
         logger.debug(f"Sending request to {model.name} with payload: {payload}")  # Add payload logging

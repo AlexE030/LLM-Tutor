@@ -1,7 +1,5 @@
 torch
 fastapi
 uvicorn
-transformers
-accelerate
-bitsandbytes
-chromadb
+pydantic
+huggingface-hub

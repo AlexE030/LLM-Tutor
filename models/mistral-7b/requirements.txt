@@ -1,7 +1,5 @@
 fastapi
 uvicorn
-transformers
-torch
 pydantic
-accelerate
+gradio-client
 chromadb

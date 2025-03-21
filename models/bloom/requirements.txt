@@ -4,4 +4,3 @@ uvicorn
 transformers
 accelerate
 bitsandbytes
-chromadb

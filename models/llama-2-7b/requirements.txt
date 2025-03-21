@@ -4,4 +4,3 @@ transformers
 accelerate
 protobuf
 torch
-chromadb

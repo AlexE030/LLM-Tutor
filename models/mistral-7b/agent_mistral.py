@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class TextInput(BaseModel):
     text: str
-    metadata: List[str]
+    context: str
 
 
 @asynccontextmanager
@@ -49,7 +49,7 @@ async def generate_outline(input: TextInput):
         "9.  Forschungsfrage: Stelle sicher, dass die Gliederung die Forschungsfrage logisch adressiert und beantwortet."
         "10. Quellen: Beziehe, wenn Quellen angegeben sind, diese ein."
         
-        f"Hier hast du einige zusätzliche Informationen aus den Richtlinien der Hochschule, die die helfen können: {input.metadata}" 
+        f"Hier hast du einige zusätzliche Informationen aus den Richtlinien der Hochschule, die die helfen können: {input.context}" 
         
         "Erstelle eine detaillierte Gliederung zu folgendem Thema:"
         f"{input.text}\n"

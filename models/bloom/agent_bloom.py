@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class TextInput(BaseModel):
     text: str
-    metadata: List[str]
+    context: str
 
 
 @asynccontextmanager
@@ -55,7 +55,7 @@ async def check_grammar(input: TextInput):
        - "Main Nahme isd Mike." -> "Mein Name ist Mike."
        - "Ich gehe zum gesheft." -> "Ich gehe zum Geschäft."
        
-       Hier hast du weitere hinweise aus dem wissenschaftlichen Richtlinien, welche dir helfen können: {input.metadata}
+       Hier hast du weitere hinweise aus dem wissenschaftlichen Richtlinien, welche dir helfen können: {input.context}
 
        Zu korrigierender Text: "{input.text}"
        Korrigierter Text:

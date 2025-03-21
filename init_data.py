@@ -4,8 +4,8 @@ from chromaDB.chunk_processor import ChunkProcessor
 from chromaDB.data_loader import DataLoader
 
 ROUTER_API_RESET_URL = "http://localhost:8080/reset/"
-pdf_path = "../data/191212_Leitlinien_Praxismodule_Studien_Bachelorarbeiten.pdf"
-output_path = '../data/dhbw_rules.json'
+pdf_path = "./data/191212_Leitlinien_Praxismodule_Studien_Bachelorarbeiten.pdf"
+output_path = './data/dhbw_rules.json'
 
 def reset_chat():
     try:

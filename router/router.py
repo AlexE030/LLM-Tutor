@@ -40,6 +40,23 @@ class NoResposeError(Exception):
     pass
 
 
+class Retriever:
+    def __init__(self, collection_name="dhbw_rules"):
+        self.client = chromadb.Client()
+        self.collection = self.client.get_or_create_collection(collection_name)
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        logger.debug(f"Retriever initialized with collection: {self.collection.name}")
+
+    def retrieve_relevant_documents(self, query, top_n=5):
+        logger.debug(f"Retrieving documents for query: {query}")
+        results = self.collection.query(
+            query_texts=[query],
+            n_results=top_n
+        )
+        logger.debug(f"Retrieved documents: {results}")
+        return results
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.input_state = InputState.REQUEST
@@ -67,37 +84,6 @@ app.add_middleware(
 )
 
 forbidden_chars = ['\"', '\'']
-
-
-class Retriever:
-    def __init__(self, chroma_client, embedding_model, collection_name="my_collection"):
-        self.client = chroma_client
-        self.collection = self.client.get_or_create_collection(collection_name)
-        self.embedding_model = embedding_model
-        logger.debug(f"Retriever initialized with collection: {self.collection.name}")
-
-    def retrieve_relevant_documents(self, query, top_n=5):
-        """
-        Ruft die relevantesten Dokumente aus chromaDB basierend auf der Anfrage ab.
-
-        Args:
-            query (str): Die Suchanfrage.
-            top_n (int): Die Anzahl der zurückzugebenden Dokumente.
-
-        Returns:
-            list: Eine Liste von Dokumenten, die der Anfrage am ähnlichsten sind.
-        """
-        logger.debug(f"Retrieving documents for query: {query}")
-        query_embedding = self.embedding_model.encode(query).tolist()
-        logger.debug(f"Query embedding: {query_embedding}")
-        results = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=top_n
-        )
-        logger.debug(f"chromaDB results: {results}")
-        retrieved_docs = results["documents"][0]
-        logger.debug(f"Retrieved documents: {retrieved_docs}")
-        return retrieved_docs
 
 
 async def get_model_response(model: Model, text: str, context: str = None):

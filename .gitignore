@@ -176,3 +176,6 @@ node_modules
 .next
 next-env.d.ts
 .eslintrc.json
+
+# data files
+dhbw_rules.json

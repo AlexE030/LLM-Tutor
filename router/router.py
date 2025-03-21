@@ -12,9 +12,6 @@ from contextlib import asynccontextmanager
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("router")
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-logger.addHandler(handler)
 
 
 class TextRequest(BaseModel):
@@ -84,8 +81,15 @@ app.add_middleware(
 forbidden_chars = ['\"', '\'']
 
 
-async def get_model_response(model: Model, text: str, context: str = None):
+async def get_model_response(model: Model, text: str, state):
     try:
+        context = None
+        if model != Model.LLAMA:
+            context = state.retriever.retrieve_relevant_documents(text)
+            logger.debug(f"Retrieved context from chromaDB: {context}")
+            context = " ".join(context)  # Combine documents into a single string
+            logger.debug(f"Context after joining: {context}")
+
         payload = {"text": text}
         if context:
             payload["context"] = context
@@ -217,11 +221,7 @@ async def handle_request_state(text: str, state):
     model = model_list[0]
     logger.debug(f"Model selected: {model}")
     if model in [Model.ZEPHYR, Model.MISTRAL, Model.BLOOM]:
-        context = state.retriever.retrieve_relevant_documents(text)
-        logger.debug(f"Retrieved context from chromaDB: {context}")
-        context = " ".join(context)  # Combine documents into a single string
-        logger.debug(f"Context after joining: {context}")
-        result_list = await asyncio.gather(get_model_response(model, text, context))  # Pass context to LLM
+        result_list = await asyncio.gather(get_model_response(model, text, state))  # Pass context to LLM
     elif model in [Model.NONE]:
         result_list = await asyncio.gather(handle_backfall(text, state))
     else:
@@ -232,7 +232,7 @@ async def handle_request_state(text: str, state):
 async def handle_confirm_state(text: str, state):
     logger.debug(f"Handling confirm state for text: {text} with overpass model: {state.overpass['model']}")
     if text.lower() in ["ja", "yes", "j", "y"]:
-        result_list = await asyncio.gather(get_model_response(state.overpass["model"], state.overpass["userQuery"]))
+        result_list = await asyncio.gather(get_model_response(state.overpass["model"], state.overpass["userQuery", state]))
         state.input_state = InputState.REQUEST
         return result_list[0]
     elif text.lower() in ["nein", "no", "n"]:
@@ -247,15 +247,15 @@ async def handle_confirm_state(text: str, state):
 async def handle_choose_model_state(text: str, state):
     logger.debug(f"Handling choose model state for text: {text}")
     if text.lower() in ["zitat", "z", "1"]:
-        result_list = await asyncio.gather(get_model_response(Model.ZEPHYR, state.overpass["userQuery"]))
+        result_list = await asyncio.gather(get_model_response(Model.ZEPHYR, state.overpass["userQuery"], state))
         state.input_state = InputState.REQUEST
         return result_list[0]
     if text.lower() in ["gliederung", "g", "2"]:
-        result_list = await asyncio.gather(get_model_response(Model.MISTRAL, state.overpass["userQuery"]))
+        result_list = await asyncio.gather(get_model_response(Model.MISTRAL, state.overpass["userQuery"], state))
         state.input_state = InputState.REQUEST
         return result_list[0]
     if text.lower() in ["formulierung", "f", "3"]:
-        result_list = await asyncio.gather(get_model_response(Model.BLOOM, state.overpass["userQuery"]))
+        result_list = await asyncio.gather(get_model_response(Model.BLOOM, state.overpass["userQuery"], state))
         state.input_state = InputState.REQUEST
         return result_list[0]
     if text.lower() in ["nichts davon", "n", "4"]:

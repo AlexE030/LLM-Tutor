@@ -56,6 +56,9 @@ async def generate_outline(input: TextInput):
         "Gib nur die Gliederung ohne weitere Erklärungen an."
     )
 
+    logging.debug(f"User Input for Mistral: {input.text}")
+    logging.debug(f"Retrieved Context from RAG: {input.context}")
+
     response = llm_client.query_instruct(
         model=MODEL_NAME,
         message=prompt,

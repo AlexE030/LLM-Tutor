@@ -57,7 +57,8 @@ class Retriever:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.input_state = InputState.REQUEST
-    app.state.overpass = {"userQuery": "", "model": Model.NONE}
+    app.state.userQuery = ""
+    app.state.model = Model.NONE
     app.state.retriever = Retriever()
     logger.debug("State initialized via lifespan.")
     yield
@@ -203,8 +204,8 @@ async def handle_backfall(text: str, state):
     elif model == Model.BLOOM:
         subject = "Formulierung und Grammatik"
     result = "Kein passendes Modell gefunden"
-    state.overpass["userQuery"] = text
-    state.overpass["model"] = model
+    state.userQuery = text
+    state.model = model
     if subject:
         result += f"\nGeht es in deiner Anfrage um folgendes: {subject} (Bestätige mit ja oder nein)"
         state.input_state = InputState.CONFIRM
@@ -230,9 +231,9 @@ async def handle_request_state(text: str, state):
 
 
 async def handle_confirm_state(text: str, state):
-    logger.debug(f"Handling confirm state for text: {text} with overpass model: {state.overpass['model']}")
+    logger.debug(f"Handling confirm state for text: {text} with model: {state.model}")
     if text.lower() in ["ja", "yes", "j", "y"]:
-        result_list = await asyncio.gather(get_model_response(state.overpass["model"], state.overpass["userQuery", state]))
+        result_list = await asyncio.gather(get_model_response(state.model, state.userQuery, state))
         state.input_state = InputState.REQUEST
         return result_list[0]
     elif text.lower() in ["nein", "no", "n"]:
@@ -247,15 +248,15 @@ async def handle_confirm_state(text: str, state):
 async def handle_choose_model_state(text: str, state):
     logger.debug(f"Handling choose model state for text: {text}")
     if text.lower() in ["zitat", "z", "1"]:
-        result_list = await asyncio.gather(get_model_response(Model.ZEPHYR, state.overpass["userQuery"], state))
+        result_list = await asyncio.gather(get_model_response(Model.ZEPHYR, state.userQuery, state))
         state.input_state = InputState.REQUEST
         return result_list[0]
     if text.lower() in ["gliederung", "g", "2"]:
-        result_list = await asyncio.gather(get_model_response(Model.MISTRAL, state.overpass["userQuery"], state))
+        result_list = await asyncio.gather(get_model_response(Model.MISTRAL, state.userQuery, state))
         state.input_state = InputState.REQUEST
         return result_list[0]
     if text.lower() in ["formulierung", "f", "3"]:
-        result_list = await asyncio.gather(get_model_response(Model.BLOOM, state.overpass["userQuery"], state))
+        result_list = await asyncio.gather(get_model_response(Model.BLOOM, state.userQuery, state))
         state.input_state = InputState.REQUEST
         return result_list[0]
     if text.lower() in ["nichts davon", "n", "4"]:

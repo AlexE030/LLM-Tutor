@@ -108,55 +108,75 @@ async def get_model_response(model: Model, text: str, state = None):
 async def classify_prompt(text: str):
     relevant_text = text.split(':', 1)[0]
     prompt = f"""
-        You are an expert Manager Agent. Your task is to classify user questions into one of the following categories.
-        The questions might be in german language. 
-        Each question must belong to exactly one category. Each question must receive only ONE category
-        The possible categories are citation, structure, grammar, none 
-        In the following you will find a description for each category.
+        Du agierst als Experte im Management von Benutzeranfragen. 
+        Deine Aufgabe ist es, Benutzeranfragen in exakt eine der folgenden vier Kategorien einzustufen: citation, structure, grammar, none. 
+        Jede Anfrage muss ausschließlich einer Kategorie zugeordnet werden.
 
-        - **"citation"**: For Questions referring to the creation of quotes. Especially watch out for the word "Zitat". Look for phrases like:
-        - "Erstelle mir ein Zitat"
-        - "Mache ein Zitat zu"
-        Examples:
-            - "Erstelle mir hieraus ein Zitat im Chicago Stil" -> citation
-            - "Ich möchte daraus ein Zitat haben" -> citation
-
-        - **"structure"**: For Questions that refer to the creation of a structure. Especially watch out for the words "Gliederung" or "Struktur" Look for phrases like:
-        - "Erstelle mir eine Gliederung hierzu"
-        - "Gib mir eine Struktur zu diesem Thema"
-        Examples:
-            - "Erstelle eine Gliederung zum Thema Delfine" -> structure
-            - "Gib mir eine Struktur für meine Bachelorarbeit" -> structure
-
-        - **"grammar"**: For requests about the grammatical improvement of text. Look for phrases like:
-        - "Verbessere mir diesen Text"
-        - "Schreib das schöner"
-        Examples:
-            - "Verbessere mir das Folgende:" -> grammar
-            - "Bitte schreib das so um, dass es besser klingt" -> grammar
-
-        - **"none"**: For questions that are not related to the above categories or the writing of scientific Papers. 
-        - In general, for questions that have nothing to do with writing an scientific paper. 
-        - Also for questions where you are unsure which category applies. Examples:
-            - "Wie heißt mein Hund?" -> none
-            - "Wie ist das Wetter morgen?" -> none
-            - "Wie groß ist die Erde?" -> none
-            - "Was ist die Hauptstadt von Frankreich?" -> none
-
-        Respond **only** and truly **ONLY** with the category name!
-        Therefore your response looks like one of the following:
-
+        Beachte: Die Anfragen können auf Deutsch formuliert sein.
+        
+        Mögliche Kategorien und deren Kriterien:
+        
+        "citation"
+        Für Anfragen, die sich auf die Erstellung von Zitaten beziehen. Achte besonders auf Wörter wie „Zitat“ sowie Formulierungen wie:
+        
+        „Erstelle mir ein Zitat“
+        
+        „Mache ein Zitat zu“
+        Beispiele:
+        
+        „Erstelle mir hieraus ein Zitat im Chicago-Stil“ → citation
+        
+        „Ich möchte daraus ein Zitat haben“ → citation
+        
+        "structure"
+        Für Anfragen, die den Aufbau oder die Gliederung eines Textes oder Themas betreffen. Achte auf Wörter wie „Gliederung“ oder „Struktur“ und Formulierungen wie:
+        
+        „Erstelle mir eine Gliederung hierzu“
+        
+        „Gib mir eine Struktur zu diesem Thema“
+        Beispiele:
+        
+        „Erstelle eine Gliederung zum Thema Delfine“ → structure
+        
+        „Gib mir eine Struktur für meine Bachelorarbeit“ → structure
+        
+        "grammar"
+        Für Anfragen, bei denen es um die grammatikalische Verbesserung oder stilistische Überarbeitung eines Textes geht. Achte auf Phrasen wie:
+        
+        „Verbessere mir diesen Text“
+        
+        „Schreib das schöner“
+        Beispiele:
+        
+        „Verbessere mir das Folgende:“ → grammar
+        
+        „Bitte schreib das so um, dass es besser klingt“ → grammar
+        
+        "none"
+        Für Anfragen, die keinen Bezug zu den oben genannten Kategorien oder zur Erstellung wissenschaftlicher Texte haben. Auch wenn nicht klar ist, welche Kategorie zutrifft, solltest du „none“ wählen.
+        Beispiele:
+        
+        „Wie heißt mein Hund?“ → none
+        
+        „Wie ist das Wetter morgen?“ → none
+        
+        „Wie groß ist die Erde?“ → none
+        
+        „Was ist die Hauptstadt von Frankreich?“ → none
+        
+        Wichtige Anweisung:
+        Antworte ausschließlich mit dem Namen der Kategorie! Deine Antwort darf nur eine der folgenden Optionen enthalten:
+        
         citation
-
+        
         structure
-
+        
         grammar
-
+        
         none
-
-        You have only those 4 possible responses!
-
-        User Question: "{relevant_text}"
+        
+        Benutzeranfrage:
+        "{relevant_text}"
         """
     logger.debug(f"Classifying prompt: {prompt}")
     response_list = await asyncio.gather(get_model_response(Model.LLAMA, prompt))

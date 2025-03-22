@@ -81,10 +81,10 @@ app.add_middleware(
 forbidden_chars = ['\"', '\'']
 
 
-async def get_model_response(model: Model, text: str, state):
+async def get_model_response(model: Model, text: str, state = None):
     try:
         context = None
-        if model != Model.LLAMA:
+        if state:
             context = state.retriever.retrieve_relevant_documents(text)
             logger.debug(f"Retrieved context from chromaDB: {context}")
             context = " ".join(context)  # Combine documents into a single string

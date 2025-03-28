@@ -3,4 +3,3 @@ uvicorn
 requests
 chromadb
 sentence-transformers
-pdfplumber

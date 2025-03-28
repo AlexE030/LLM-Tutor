@@ -1,3 +1,5 @@
+from encodings import undefined
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -298,6 +300,8 @@ async def reset_state(request: Request):
 async def process_text(request: Request, req: TextRequest):
     try:
         text = req.text
+        if text is None or text is undefined:
+            return {"error": "No text provided"}
         logger.info(f"Processing user request: {text}")
         for char in forbidden_chars:
             text = text.replace(char, "")

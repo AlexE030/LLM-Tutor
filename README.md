@@ -8,13 +8,21 @@ Das Projekt ist ausgelegt um auf dem KI-Server der DHBW zu laufen. Die Lauffähi
 
 Im Folgenden wird das aufsetzen den Projekts erklärt:
 
-## 1. Erstellen von virtual env
+## 1. Holen des Projektordners
+Entweder:
+```
+git clone https://github.com/AlexE030/LLM-Tutor.git
+```
+Oder:
+Entpacken des Mitgelieferten zip-Ordners im Zielverzeichnis
+
+## 2. Erstellen von virtual env
 
 ```
 python -m venv venv
 ```
 
-## 2. Virtuelle Umgebung aktivieren
+## 3. Virtuelle Umgebung aktivieren
 
 cmd:
 ```
@@ -30,24 +38,24 @@ bash:
 source venv/bin/activate
 ```
 
-## 3. Installieren der Frontend Dependencies
+## 4. Installieren der Frontend Dependencies
 ```
 npm install 
 ```
 
-## 4. Nötige Einstellungen bei Huggingface
+## 5. Nötige Einstellungen bei Huggingface
 1. Melden Sie sich mit Ihrem Huggingface-Konto auf https://huggingface.co an.
 2. Akzeptieren Sie die Lizenzbedingungen unter https://huggingface.co/meta-llama/Llama-2-7b-chat-hf
 3. Erstellen Sie einen API-Key unter Settings -> Access Tokens. Dieser sollte mindestens Read-Rechte haben.
 
-## 5. Definieren der .env
+## 6. Definieren der .env
 Erstellen sie eine Datei .env auf Basis der .env.example.
 Geben sie hierfür an:
 
 1. Den Pfad zu Ihrer Python executable in virtualenv
 2. Ihren Huggingface API-Key
 
-## 6. Erstellen der docker-container
+## 7. Erstellen der docker-container
 ```
 docker-compose up -d --build
 ```

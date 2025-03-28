@@ -43,39 +43,23 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/process/")
 async def check_grammar(input: TextInput):
     # Der Prompt wird so formuliert, dass das Modell als Experte für deutsche Grammatik agiert.
-    # prompt = f"""
-    #    Du bist ein hochqualifizierter Lektor für deutsche Sprache. Deine Aufgabe ist es, einen gegebenen deutschen Text auf grammatikalische Fehler zu korrigieren.
-    #
-    #    Befolge diese Regeln:
-    #    1. Korrigiere ausschließlich Grammatik, Rechtschreibung und Zeichensetzung.
-    #    2. Behalte den ursprünglichen Sinn des Textes bei.
-    #    3. Gib nur den korrigierten Text zurück, ohne zusätzliche Erklärungen.
-    #
-    #    Beispiele:
-    #    - "Main Nahme isd Mike." -> "Mein Name ist Mike."
-    #    - "Ich gehe zum gesheft." -> "Ich gehe zum Geschäft."
-    #
-    #    Hier hast du weitere hinweise aus dem wissenschaftlichen Richtlinien, welche dir helfen können: {input.context}
-    #
-    #    Zu korrigierender Text: "{input.text}"
-    #    Korrigierter Text:
-    #    """
-    prompt = f"""Du bist ein hochqualifizierter Lektor für deutsche Sprache mit umfassender Expertise in Grammatik, Rechtschreibung und Stilistik.
-        Deine Aufgabe ist es, den folgenden Text präzise zu analysieren und alle Fehler zu korrigieren.
-        Gib ausschließlich den korrigierten Text zurück.
-        Führe folgende Aufgaben aus:
-        1. Überprüfe die Rechtschreibung und korrigiere alle Tippfehler.
-        2. Analysiere die Grammatik, einschließlich:
-           - Deklination von Nomen und Adjektiven
-           - Konjugation von Verben (Zeitformen und Modi)
-           - Korrekte Verwendung von Präpositionen und Fällen.
-        3. Prüfe die Zeichensetzung, insbesondere die Kommasetzung.
-        4. Korrigiere die Groß- und Kleinschreibung.
-        5. Überprüfe die Satzstruktur und den Satzbau auf grammatikalische Korrektheit und Verständlichkeit.
-        6. Überprüfe auch auf die Einhaltung der wissenschaftlichen Richtlinien, welche dir im Folgenden zur Verfügung gestellt werden.\n\n
-        Hier hast du weitere Hinweise aus dem wissenschaftlichen Richtlinien, welche dir helfen können: {input.context}
-        
-        Eingabetext: {input.text}"""
+    prompt = f"""
+       Du bist ein hochqualifizierter Lektor für deutsche Sprache. Deine Aufgabe ist es, einen gegebenen deutschen Text auf grammatikalische Fehler zu korrigieren.
+
+       Befolge diese Regeln:
+       1. Korrigiere ausschließlich Grammatik, Rechtschreibung und Zeichensetzung.
+       2. Behalte den ursprünglichen Sinn des Textes bei.
+       3. Gib nur den korrigierten Text zurück, ohne zusätzliche Erklärungen.
+
+       Beispiele:
+       - "Main Nahme isd Mike." -> "Mein Name ist Mike."
+       - "Ich gehe zum gesheft." -> "Ich gehe zum Geschäft."
+
+       Hier hast du weitere hinweise aus dem wissenschaftlichen Richtlinien, welche dir helfen können: {input.context}
+
+       Zu korrigierender Text: "{input.text}"
+       Korrigierter Text:
+       """
 
     print(prompt)
 

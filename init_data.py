@@ -1,7 +1,7 @@
 import requests
 
-from chromaDB.chunk_processor import ChunkProcessor
-from chromaDB.data_loader import DataLoader
+from router.chromaDB.chunk_processor import ChunkProcessor
+from router.chromaDB.data_loader import DataLoader
 
 ROUTER_API_RESET_URL = "http://localhost:8080/reset/"
 pdf_path = "./data/191212_Leitlinien_Praxismodule_Studien_Bachelorarbeiten.pdf"

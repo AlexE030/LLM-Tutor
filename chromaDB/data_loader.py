@@ -40,8 +40,7 @@ class DataLoader:
         return metadata_list
 
     def insert_into_chorma_db(self, texts, embeddings, metadata_list):
-        # Neuen ChromaDB-Client gemäß aktueller API verwenden
-        client = chromadb.Client()
+        client = chromadb.PersistentClient("./chromaDB")
         self.logger.debug("Persistent Chroma client initialized.")
 
         # Collection erstellen oder abrufen

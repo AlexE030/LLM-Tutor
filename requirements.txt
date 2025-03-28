@@ -1,3 +1,0 @@
-pdfplumber
-sentence_transformers
-chromadb

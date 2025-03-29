@@ -20,4 +20,5 @@ def reset_chat():
 chunker = ChunkProcessor(pdf_path, output_path)
 chunker.chunk()
 data_loader = DataLoader(output_path)
+data_loader.load()
 reset_chat()

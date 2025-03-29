@@ -6,9 +6,29 @@ import chromadb
 
 class DataLoader:
     def __init__(self, chunked_data_path):
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+        self.setup_logger()
         self.logger = logging.getLogger("data_loader")
         self.path = chunked_data_path
+
+    def setup_logger(self):
+        logger = logging.getLogger("data_loader")
+        logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+        # Console-Handler
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.DEBUG)
+        console_handler.setFormatter(formatter)
+
+        # File-Handler (Schreibt in data_loader.log im aktuellen Arbeitsverzeichnis)
+        file_handler = logging.FileHandler("data_loader.log")
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+
+        # Handler hinzufügen, falls noch nicht vorhanden
+        if not logger.handlers:
+            logger.addHandler(console_handler)
+            logger.addHandler(file_handler)
 
     def load_json_data(self):
         self.logger.debug(f"Loading JSON data from: {self.path}")
@@ -41,7 +61,7 @@ class DataLoader:
 
     def insert_into_chorma_db(self, texts, embeddings, metadata_list):
         client = chromadb.HttpClient(host="localhost", port=8000)
-        self.logger.debug("Persistent Chroma client initialized.")
+        self.logger.debug("Chroma client initialized.")
 
         # Collection erstellen oder abrufen
         collection = client.get_or_create_collection("dhbw_rules")
@@ -61,21 +81,17 @@ class DataLoader:
         self.logger.info(f"Number of items in collection: {collection.count()}")
 
     def load(self):
-        # JSON-Datei laden (z.B. "chunks.json")
         data = self.load_json_data()
         if data is None:
             exit(1)
 
-        # Extrahiere Texte und Metadaten
         texts = [item["text"] for item in data]
         metadata_list = self.extract_meta_data(data)
 
         self.logger.debug(f"Number of texts: {len(texts)}")
 
-        # Embeddings erstellen mit SentenceTransformer
         model = SentenceTransformer('all-MiniLM-L6-v2')
         embeddings = self.create_embeddings(texts, model)
         self.logger.info(f"Generated {len(embeddings)} embeddings.")
 
         self.insert_into_chorma_db(texts, embeddings, metadata_list)
-

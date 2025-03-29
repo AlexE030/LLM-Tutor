@@ -41,7 +41,7 @@ class NoResposeError(Exception):
 
 class Retriever:
     def __init__(self, collection_name="dhbw_rules"):
-        self.client = chromadb.PersistentClient("/chromaDB")
+        self.client = chromadb.client = chromadb.HttpClient(host="host.docker.internal", port=8000)
         self.collection = self.client.get_or_create_collection(collection_name)
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         logger.debug(f"Retriever initialized with collection: {self.collection.name}")

@@ -19,6 +19,8 @@ export default function Home() {
   };
 
   const handleSend = async (message: Message) => {
+    if (message == undefined)
+      return
     const updatedMessages = [...messages, message];
     setMessages(updatedMessages);
     setLoading(true);

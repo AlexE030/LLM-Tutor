@@ -66,3 +66,7 @@ Nachdem der Build abgeschlossen ist, sollte nochmal etwa 15 Minuten gewartet wer
 ```
 npm run dev
 ```
+
+## Known Issues 
+- Manchmal kann es passieren, das trotz erstmaliger Eingabe direkt nach der Spezifizierung der Anfrage gefragt wird. Das lässt sich recht leicht beheben, indem man auf den Button Neuer Chat klickt.
+- Manchmal wird zurückgegeben, dass kein Kontext gegeben ist. In diesem Fall auch den Chat neu laden und die Anfrage nochmal stellen.

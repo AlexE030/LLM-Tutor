@@ -86,7 +86,7 @@ services:
     networks:
       - llm-network
     volumes:
-      - ./chromaDB:/app/chromaDB
+      - ./chromaDB:/chromaDB
     restart: always
     command: ["uvicorn", "router:app", "--host", "0.0.0.0", "--port", "8000"]
 

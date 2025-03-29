@@ -1,4 +1,16 @@
 services:
+  chromadb:
+    image: chromadb/chroma:0.6.3
+    volumes:
+      - ./chromaDB:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-TRUE}
+    ports:
+      - 8000:8000
+    networks:
+      - llm-network
   llama_api:
     build:
       context: models/llama-2-7b
@@ -19,7 +31,7 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              device_ids: ['1']
+              device_ids: ['0']
               capabilities: [ gpu ]
     command: [ "uvicorn", "agent_llama:app", "--host", "0.0.0.0", "--port", "8000" ]
 

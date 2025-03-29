@@ -10,7 +10,7 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(false);
   const [initializing, setInitializing] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const chatbotContent = `Sag mir zuerst, **WAS** ich tun soll (Aktion), dann **WOMIT* (Text), getrennt durch einen Doppelpunkt \nBeispiel: Erstelle mir ein Zitat von: ...`;
+  const chatbotContent = `Herzlich willkommen beim Assistenten für Bachelorarbeiten\nUm einen reibungslosen Ablauf zu gewährleisten sag mir zuerst, WAS ich tun soll (Aktion), dann WOMIT (Text), getrennt durch einen Doppelpunkt \nBeispiel: Erstelle mir eine Gliederung zu: ...`;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -19,6 +19,8 @@ export default function Home() {
   };
 
   const handleSend = async (message: Message) => {
+    if (message == undefined)
+      return
     const updatedMessages = [...messages, message];
     setMessages(updatedMessages);
     setLoading(true);

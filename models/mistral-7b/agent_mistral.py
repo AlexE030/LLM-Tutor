@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
@@ -16,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class TextInput(BaseModel):
     text: str
+    context: str
 
 
 @asynccontextmanager
@@ -45,10 +48,16 @@ async def generate_outline(input: TextInput):
         "8.  Methodik: Berücksichtige, wenn in der Benutzereingabe erwähnt, die in der Gliederung verwendete Forschungsmethodik."
         "9.  Forschungsfrage: Stelle sicher, dass die Gliederung die Forschungsfrage logisch adressiert und beantwortet."
         "10. Quellen: Beziehe, wenn Quellen angegeben sind, diese ein."
+        
+        f"Hier hast du einige zusätzliche Informationen aus den Richtlinien der Hochschule, die die helfen können: {input.context}" 
+        
         "Erstelle eine detaillierte Gliederung zu folgendem Thema:"
         f"{input.text}\n"
         "Gib nur die Gliederung ohne weitere Erklärungen an."
     )
+
+    logging.debug(f"User Input for Mistral: {input.text}")
+    logging.debug(f"Retrieved Context from RAG: {input.context}")
 
     response = llm_client.query_instruct(
         model=MODEL_NAME,

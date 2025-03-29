@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -23,6 +25,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class TextInput(BaseModel):
     text: str
+    context: str
 
 
 @asynccontextmanager
@@ -52,6 +55,8 @@ async def check_grammar(input: TextInput):
        - "Main Nahme isd Mike." -> "Mein Name ist Mike."
        - "Ich gehe zum gesheft." -> "Ich gehe zum Geschäft."
 
+       Hier hast du weitere hinweise aus dem wissenschaftlichen Richtlinien, welche dir helfen können: {input.context}
+
        Zu korrigierender Text: "{input.text}"
        Korrigierter Text:
        """
@@ -67,7 +72,8 @@ async def check_grammar(input: TextInput):
     outputs = model.generate(**inputs, max_new_tokens=512, num_beams=1, early_stopping=True)
     generated_tokens = outputs[0][input_length:]
     output = tokenizer.decode(generated_tokens, skip_special_tokens=True)
+    formated_output = output.replace("\n", "").replace("\t", "").replace("  ", "").replace("\"", "")
 
     torch.cuda.empty_cache()
 
-    return {"response": output}
+    return {"response": formated_output}

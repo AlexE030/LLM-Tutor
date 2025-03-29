@@ -9,12 +9,10 @@ from sentence_transformers import SentenceTransformer
 import requests
 import asyncio
 import logging
-import sys
 from contextlib import asynccontextmanager
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("router")
-
 
 class TextRequest(BaseModel):
     text: str
@@ -41,7 +39,7 @@ class NoResposeError(Exception):
 
 class Retriever:
     def __init__(self, collection_name="dhbw_rules"):
-        self.client = chromadb.client = chromadb.HttpClient(host="host.docker.internal", port=8000)
+        self.client = chromadb.client = chromadb.HttpClient(host="chromadb", port=8000)
         self.collection = self.client.get_or_create_collection(collection_name)
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         logger.debug(f"Retriever initialized with collection: {self.collection.name}")

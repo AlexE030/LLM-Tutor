@@ -2,6 +2,8 @@ import requests
 
 from chromaDB.chunk_processor import ChunkProcessor
 from chromaDB.data_loader import DataLoader
+from chromadb.config import Settings
+import chromadb.server.fastapi as chroma_server
 
 ROUTER_API_RESET_URL = "http://localhost:8080/reset/"
 pdf_path = "./data/191212_Leitlinien_Praxismodule_Studien_Bachelorarbeiten.pdf"
@@ -14,6 +16,7 @@ def reset_chat():
         return response.json()
     except requests.exceptions.RequestException as e:
         return {"error": f"Error contacting router_api: {e}"}
+
 
 if __name__ == '__main__':
     chunker = ChunkProcessor(pdf_path, output_path)
